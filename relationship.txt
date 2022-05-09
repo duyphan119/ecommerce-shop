@@ -1,0 +1,32 @@
+product = {
+  id,
+  name,
+  price,
+  slug,
+  description,
+  material:{
+    id,
+    value
+  },
+  images: [{
+    id,
+    color:{
+      id,
+      value
+    },
+    url
+  }],
+  details: [{
+    id,
+    amount,
+    sku,
+    color:{
+      id,
+      value
+    },
+    size:{
+      id,
+      value
+    },
+  }]
+}

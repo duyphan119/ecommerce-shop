@@ -1,0 +1,24 @@
+// footer {
+//   position: fixed;
+//   bottom: 0;
+//   left: 0;
+//   height: 300px;
+//   width: 100%;
+// }
+.footer-contact-item-left {
+  span {
+    width: 36px;
+    height: 36px;
+    border: 1px solid white;
+    border-radius: 50%;
+    .footer-icon {
+      font-size: 20px;
+    }
+  }
+}
+.footer-contact-item-left-link {
+  width: 36px;
+  height: 36px;
+  border: 1px solid white;
+  border-radius: 50%;
+}

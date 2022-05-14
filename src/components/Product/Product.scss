@@ -1,0 +1,19 @@
+@import "../GlobalStyles/Breakpoints.scss";
+
+.card-img-top {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  @include small {
+    height: 360px;
+  }
+  @include medium {
+    height: 320px;
+  }
+  @include large {
+    height: 280px;
+  }
+  @include extra-large {
+    height: 210px;
+  }
+}

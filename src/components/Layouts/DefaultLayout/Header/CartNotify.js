@@ -36,7 +36,7 @@ const CartNotify = () => {
   }
   return (
     <div className="position-absolute cart-notify">
-      {cart ? (
+      {cart && cart.items.length > 0 ? (
         <>
           <ul className=" cart-notify-items custom-scrollbar">
             {cart.items.map((item) => (

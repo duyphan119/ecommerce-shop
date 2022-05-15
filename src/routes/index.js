@@ -3,6 +3,8 @@ import ProductDetail from "../pages/ProductDetail";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import { HeaderOnly } from "../components/Layouts";
+import ProductSearchResult from "../pages/ProductSearchResult";
+import SwitchPages from "../components/Common/SwitchPages";
 
 export const publicRoutes = [
   {
@@ -14,6 +16,10 @@ export const publicRoutes = [
     component: ProductDetail,
   },
   {
+    path: "/search",
+    component: ProductSearchResult,
+  },
+  {
     path: "/login",
     component: Login,
     layout: HeaderOnly,
@@ -22,6 +28,10 @@ export const publicRoutes = [
     path: "/register",
     component: Register,
     layout: HeaderOnly,
+  },
+  {
+    path: "/:category_slug",
+    component: SwitchPages,
   },
 ];
 export const privateRoutes = [];

@@ -25,9 +25,13 @@ const EmptyCart = () => {
           </Link>
         </div>
       )}
-      {location.pathname !== "/" && (
+      {location.pathname !== "/" ? (
         <Link to="/" className="btn btn-primary btn-sm my-1">
           Quay về trang chủ
+        </Link>
+      ) : (
+        <Link to="/cart" className="btn btn-primary btn-sm my-1">
+          Đi đến giỏ hàng
         </Link>
       )}
     </div>

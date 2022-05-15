@@ -8,11 +8,12 @@ import {
 import { API_AUTH_URL, API_CART_URL } from "../../../../constants";
 import { logout } from "../../../../redux/authSlice";
 import { getCart } from "../../../../redux/cartSlice";
-import CartNotify from "./CartNotify";
+import CartNavItem from "./CartNavItem";
+import CategoryNavItem from "./CategoryNavItem";
+import SearchBar from "./SearchBar";
 
 const Navbar = () => {
   const user = useSelector((state) => state.auth.currentUser);
-  const cart = useSelector((state) => state.cart.cart);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -143,53 +144,10 @@ const Navbar = () => {
         </button>
 
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul className="navbar-nav mr-auto">
-            <li className="nav-item active">
-              <Link className="nav-link text-light" to="/">
-                Trang chủ <span className="sr-only">(current)</span>
-              </Link>
-            </li>
-            <li className="nav-item  text-light">
-              <Link className="nav-link text-light" to="/">
-                Nam
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link text-light" to="/">
-                Nữ
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link text-light" to="/">
-                Trẻ em
-              </Link>
-            </li>
-          </ul>
-          <form className="form-inline my-2 my-lg-0">
-            <input
-              className="form-control mr-sm-1"
-              type="search"
-              placeholder="Tìm tại đây"
-              aria-label="Tìm tại đây"
-            />
-            <button
-              className="btn btn-light my-2 my-sm-0 d-sm-inline d-none"
-              type="submit"
-            >
-              <i className="fa fa-search" aria-hidden="true"></i>
-            </button>
-          </form>
+          <CategoryNavItem />
+          <SearchBar />
           <ul className="navbar-nav">
-            <li className="nav-item-cart nav-item position-relative">
-              <Link className="nav-link text-light" to="/">
-                Giỏ hàng (
-                {cart && cart.items && cart.items.length
-                  ? cart.items.length
-                  : 0}
-                )
-              </Link>
-              <CartNotify />
-            </li>
+            <CartNavItem />
             {showNavItems()}
             <li className="nav-item dropdown">
               <div

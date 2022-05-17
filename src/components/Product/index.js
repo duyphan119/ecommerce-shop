@@ -12,7 +12,7 @@ const Product = ({ product }) => {
             className="card-img-top"
           />
         </Link>
-        <div className="card-body p-2">
+        <div className="card-body p-1">
           <div className="card-text">
             <Link
               to={`/product/${product.slug}`}
@@ -21,7 +21,7 @@ const Product = ({ product }) => {
             >
               {product.name}
             </Link>
-            <span style={{ fontSize: "14px" }} className="text-primary">
+            <span style={{ fontSize: "12px" }} className="text-primary">
               {formatThousandDigits(product.price)}đ
             </span>
           </div>

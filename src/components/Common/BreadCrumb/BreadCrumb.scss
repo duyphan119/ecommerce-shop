@@ -1,0 +1,10 @@
+.breadcrumb {
+  background-color: inherit;
+  margin-bottom: 0;
+  .breadcrumb-item {
+    .breadcrumb-item-link:hover,
+    &.active {
+      color: var(--primary);
+    }
+  }
+}

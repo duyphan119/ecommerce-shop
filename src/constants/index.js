@@ -4,6 +4,9 @@ export const API_AUTH_URL = `${SERVER_URL}/v1/api/auth`;
 export const API_CART_URL = `${SERVER_URL}/v1/api/cart`;
 export const API_CART_ITEM_URL = `${SERVER_URL}/v1/api/cart-item`;
 export const API_GENDER_URL = `${SERVER_URL}/v1/api/gender`;
+export const API_COLOR_URL = `${SERVER_URL}/v1/api/color`;
+export const API_SIZE_URL = `${SERVER_URL}/v1/api/size`;
+export const API_MATERIAL_URL = `${SERVER_URL}/v1/api/material`;
 
 export const IMAGE_IS_NOT_AVAILABLE_URL = `https://play-lh.googleusercontent.com/ByaDki7oQ9RZJV2XRVgRUCAHmM6aqApy4TLAiDx4MG2BVtr2ijknHf2taM76CjFBpdc`;
 export const IMGBB_API_KEY = "4425dd35bf23326f3a6b0c0fdcd6963e";
@@ -15,6 +18,7 @@ export const EXAMPLE_STARS_ARRAY = [1, 2, 3, 4, 5];
 export const EXAMPLE_STARS_ARRAY_REVERSE = [5, 4, 3, 2, 1];
 
 export const PRODUCTS_PER_PAGE = 12;
+export const PRODUCTS_CATEGORY_PER_PAGE = 10;
 export const PRODUCTS_SLIDER_VERTICAL = 5;
 export const PRODUCT_COLORS_PREVIEW = 5;
 export const BEST_SELLER_PRODUCTS_PREVIEW = 6;

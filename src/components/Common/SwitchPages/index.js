@@ -13,11 +13,22 @@ const SwitchPages = () => {
       }
       for (const groupCategory of genderCategory.group_categories) {
         if (groupCategory.slug === category_slug) {
-          return <ProductCategory />;
+          return (
+            <ProductCategory
+              genderCategory={genderCategory}
+              groupCategory={groupCategory}
+            />
+          );
         }
         for (const category of groupCategory.categories) {
           if (category.slug === category_slug) {
-            return <ProductCategory />;
+            return (
+              <ProductCategory
+                genderCategory={genderCategory}
+                category={category}
+                groupCategory={groupCategory}
+              />
+            );
           }
         }
       }

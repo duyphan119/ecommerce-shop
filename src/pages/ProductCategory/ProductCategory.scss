@@ -1,0 +1,86 @@
+@import "../../components/GlobalStyles/Breakpoints.scss";
+.sidebar {
+  .sidebar-filter-list {
+    .selected-filter-item {
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      margin-right: 8;
+      font-size: 12px;
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+    .sidebar-filter-item {
+      cursor: pointer;
+      user-select: none;
+      background-color: var(--light);
+      .filter-item-chip-list {
+        flex-wrap: wrap;
+        max-height: 110px;
+        overflow-y: auto;
+        .filter-item-chip-item {
+          border: 2px solid #000;
+          font-size: 12px;
+          margin-right: 8px;
+          border-radius: 2px;
+          &:last-child {
+            margin-right: 0;
+          }
+          &:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+          }
+          &.active {
+            background-color: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+          }
+        }
+      }
+    }
+  }
+}
+.product-category-item {
+  @include large {
+    .card {
+      img {
+        height: 280px;
+      }
+    }
+  }
+}
+.sort-select-list {
+  width: 140px;
+  position: relative;
+  .sort-select-item {
+    cursor: pointer;
+    border: 1px solid #000;
+    user-select: none;
+    .icon-down {
+      font-size: 14px;
+    }
+  }
+  .sort-select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    z-index: 2;
+    background-color: #fff;
+    .sort-select-dropdown-item {
+      cursor: pointer;
+      &:hover {
+        .icon-checked {
+          display: inline-block;
+        }
+      }
+      .icon-checked {
+        display: none;
+        color: var(--primary);
+        &.active {
+          display: inline-block;
+        }
+      }
+    }
+  }
+}

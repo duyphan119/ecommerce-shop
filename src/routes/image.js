@@ -10,7 +10,7 @@ router.get("/:image_id", async (req, res) => {
   res.status(status).json(data);
 });
 router.post("/", async (req, res) => {
-  const { status, data } = await imageService.create(req.body);
+  const { status, data } = await imageService.create(req.query, req.body);
   res.status(status).json(data);
 });
 router.put("/", async (req, res) => {

@@ -119,6 +119,7 @@ const update = async (body) => {
       const existingCart = await getById(id);
       resolve({ status: 200, data: existingCart.data });
     } catch (error) {
+      console.log(error);
       resolve({ status: 500, data: { error, message: "error update cart" } });
     }
   });

@@ -18,6 +18,7 @@ const orderStatus = require("./orderStatus");
 const orderItem = require("./orderItem");
 const image = require("./image");
 const statistics = require("./statistics");
+const upload = require("./upload");
 const configRoute = (app) => {
   app.use("/v1/api/auth", auth);
   app.use("/v1/api/user", user);
@@ -39,5 +40,6 @@ const configRoute = (app) => {
   app.use("/v1/api/coupon", coupon);
   app.use("/v1/api/image", image);
   app.use("/v1/api/statistics", statistics);
+  app.use("/v1/api/upload", upload);
 };
 module.exports = configRoute;

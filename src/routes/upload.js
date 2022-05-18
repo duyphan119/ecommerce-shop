@@ -3,7 +3,7 @@ const uploadService = require("../services/uploadService");
 
 const router = require("express").Router();
 
-router.post("/", upload.array("images", 20), async (req, res) => {
+router.post("/", upload.array("images", 100), async (req, res) => {
   const { status, data } = await uploadService.upload(req.files);
   res.status(status).json(data);
 });

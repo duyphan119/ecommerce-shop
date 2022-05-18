@@ -6,7 +6,7 @@ require("dotenv").config();
 const register = async (body) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const { email, password } = body;
+      const { email, password, role_id } = body;
       let existingUser = await db.User.findOne({ where: { email } });
       if (existingUser) {
         resolve({
@@ -20,6 +20,7 @@ const register = async (body) => {
       const createdUser = await db.User.create({
         ...body,
         password: hashedPassword,
+        role_id: role_id ? role_id : 3,
       });
 
       existingUser = await userService.getById(createdUser.id);
@@ -47,7 +48,7 @@ const login = async (body, res) => {
       if (!existingUser) {
         resolve({
           status: 500,
-          data: { error, message: "this email is incorrect" },
+          data: { message: "this email is incorrect" },
         });
       }
 
@@ -59,7 +60,7 @@ const login = async (body, res) => {
       if (!comparedResult) {
         resolve({
           status: 500,
-          data: { error, message: "this password is incorrect" },
+          data: { message: "this password is incorrect" },
         });
       }
       const access_token = jwt.sign(
@@ -124,5 +125,14 @@ const refreshToken = async (req) => {
     }
   });
 };
+const logout = (res) => {
+  try {
+    res.clearCookie("refresh_token");
+    return { status: 200, data: { message: "Logout successfully" } };
+  } catch (error) {
+    console.log(error);
+    return { status: 500, data: { error, message: "Logout fail" } };
+  }
+};
 
-module.exports = { register, login, refreshToken };
+module.exports = { register, login, refreshToken, logout };

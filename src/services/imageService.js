@@ -25,12 +25,19 @@ const getById = async (id) => {
     }
   });
 };
-const create = async (body) => {
+const create = async (query, body) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const createdImage = await db.Image.create(body);
-      resolve({ status: 200, data: createdImage });
+      const { many } = query;
+      if (many) {
+        const createdImages = await db.Image.bulkCreate(body);
+        resolve({ status: 200, data: createdImages });
+      } else {
+        const createdImage = await db.Image.create(body);
+        resolve({ status: 200, data: createdImage });
+      }
     } catch (error) {
+      console.log(error);
       resolve({
         status: 500,
         data: { error, message: "error create new image" },

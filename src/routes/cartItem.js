@@ -6,7 +6,9 @@ router.get("/", async (req, res) => {
   res.status(status).json(data);
 });
 router.get("/:cart_item_id", async (req, res) => {
-  const { status, data } = await cartItemService.getById(req.params.cart_item_id);
+  const { status, data } = await cartItemService.getById(
+    req.params.cart_item_id
+  );
   res.status(status).json(data);
 });
 router.post("/", async (req, res) => {
@@ -18,7 +20,13 @@ router.put("/", async (req, res) => {
   res.status(status).json(data);
 });
 router.delete("/:cart_item_id", async (req, res) => {
-  const { status, data } = await cartItemService.destroy(req.params.cart_item_id);
+  const { status, data } = await cartItemService.destroy(
+    req.params.cart_item_id
+  );
+  res.status(status).json(data);
+});
+router.delete("/", async (req, res) => {
+  const { status, data } = await cartItemService.destroyMany(req.body);
   res.status(status).json(data);
 });
 

@@ -9,6 +9,10 @@ router.post("/login", async (req, res) => {
   const { status, data } = await authService.login(req.body, res);
   res.status(status).json(data);
 });
+router.get("/logout", (req, res) => {
+  const { status, data } = authService.logout(res);
+  res.status(status).json(data);
+});
 router.get("/refresh", async (req, res) => {
   const { status, data } = await authService.refreshToken(req);
   res.status(status).json(data);

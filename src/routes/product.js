@@ -26,6 +26,10 @@ router.get("/category/:category_slug", async (req, res) => {
   );
   res.status(status).json(data);
 });
+router.get("/search", async (req, res) => {
+  const { status, data } = await productService.search(req.query);
+  res.status(status).json(data);
+});
 router.get("/slug/:product_slug", async (req, res) => {
   const { status, data } = await productService.getBySlug(
     req.params.product_slug

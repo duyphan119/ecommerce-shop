@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const db = require("../models");
 const productDetailService = require("./productDetailService");
 const getAll = async () => {
@@ -238,6 +239,7 @@ const update = async (body) => {
       const existingProductDetail = await productDetailService.getById(
         product_detail_id
       );
+      console.log(quantity, existingProductDetail.data.amount);
       if (quantity <= existingProductDetail.data.amount) {
         await db.CartItem.update(
           {
@@ -254,6 +256,7 @@ const update = async (body) => {
         });
       }
     } catch (error) {
+      console.log(error);
       resolve({ status: 500, data: { error, message: "error update cart" } });
     }
   });
@@ -271,4 +274,23 @@ const destroy = async (id) => {
     }
   });
 };
-module.exports = { getAll, getById, create, update, destroy };
+const destroyMany = async (body) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await db.CartItem.destroy({
+        where: {
+          id: {
+            [Op.in]: body,
+          },
+        },
+      });
+      resolve({
+        status: 200,
+        data: { message: "This cart item is deleted" },
+      });
+    } catch (error) {
+      resolve({ status: 500, data: { error, message: "error update cart" } });
+    }
+  });
+};
+module.exports = { getAll, getById, create, update, destroy, destroyMany };

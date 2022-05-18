@@ -226,7 +226,7 @@ const create = async (body) => {
           product_detail_id: item.detail.id,
           quantity: item.quantity,
           order_id: createdRole.id,
-          product_price: item.product_price,
+          product_price: item.detail.product.price,
         }))
       );
       resolve({ status: 200, data: createdRole });
@@ -241,8 +241,9 @@ const create = async (body) => {
 const update = async (body) => {
   return new Promise(async (resolve, reject) => {
     try {
+      console.log(body);
       const { id, ...others } = body;
-      await db.Order.update({ ...others }, { where: { id } });
+      await db.Order.update(others, { where: { id } });
       const existingOrder = await getById(id);
       resolve({ status: 200, data: existingOrder.data });
     } catch (error) {

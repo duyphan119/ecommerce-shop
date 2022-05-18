@@ -20,10 +20,14 @@ const SearchBar = () => {
   useEffect(() => {
     const timerId = setTimeout(() => {
       (async function () {
-        const data = await configAxiosResponse().get(
-          `${API_PRODUCT_URL}/search?include=true&q=${q}&limit=${LIMIT_SEARCH_RESULT}`
-        );
-        setSearchResult(data);
+        if (q !== "") {
+          const data = await configAxiosResponse().get(
+            `${API_PRODUCT_URL}/search?include=true&q=${q}&limit=${LIMIT_SEARCH_RESULT}`
+          );
+          setSearchResult(data);
+        } else {
+          setSearchResult();
+        }
       })();
     }, 500);
     return () => clearTimeout(timerId);

@@ -9,7 +9,7 @@ const EmptyCart = () => {
     <div className="d-flex justify-content-center align-items-center flex-column">
       <div className="empty-cart-img"></div>
       <div className="">Giỏ hàng của bạn đang trống</div>
-      {user && (
+      {!user && (
         <div className="d-flex">
           <Link
             to="/register"

@@ -3,7 +3,7 @@ import TitleComponent from "../../../Common/TitleComponent";
 import "./Footer.scss";
 const Footer = () => {
   return (
-    <footer className="bg-primary py-2">
+    <footer className="footer bg-primary py-2">
       <div className="container">
         <div className="row text-light">
           <div className="col-xs-12 col-sm-12 col-md-6 col-lg-6">

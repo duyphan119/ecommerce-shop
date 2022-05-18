@@ -3,6 +3,12 @@
   .navbar {
     position: relative;
     .container {
+      .navbar-brand {
+        &:hover,
+        &:focus {
+          color: var(--light) !important;
+        }
+      }
       .navbar-toggler {
         border: 1px solid #fff;
         span {

@@ -1,0 +1,12 @@
+.checkout-success-page {
+  padding: 120px 0;
+  .checkout-success-icon {
+    background-image: url("../../assets/bill.png");
+    background-size: cover;
+    width: 128px;
+    height: 128px;
+  }
+  .checkout-success-text {
+    font-size: 20px;
+  }
+}

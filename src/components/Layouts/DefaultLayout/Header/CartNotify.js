@@ -39,8 +39,8 @@ const CartNotify = () => {
       {cart && cart.items.length > 0 ? (
         <>
           <ul className=" cart-notify-items custom-scrollbar">
-            {cart.items.map((item) => (
-              <li className="d-flex cart-notify-item">
+            {cart.items.map((item, index) => (
+              <li className="d-flex cart-notify-item" key={index}>
                 <Link to="/" className="cart-notify-item-img-link">
                   <img
                     src={getThumbnailCartItem(item)}
@@ -58,7 +58,7 @@ const CartNotify = () => {
                   </Link>
                   <div className=" d-flex justify-content-between mt-1">
                     <span className="cart-notify-item-price">
-                      {formatThousandDigits(item.product_price)}đ
+                      {formatThousandDigits(item.detail.product.price)}đ
                     </span>
                     <span className="cart-notify-item-detail">
                       {item.detail.color.value} / {item.detail.size.value}

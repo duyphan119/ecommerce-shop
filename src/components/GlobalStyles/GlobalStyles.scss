@@ -6,6 +6,10 @@ body {
   text-rendering: optimizeSpeed;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 .three-dot {
   overflow: hidden;
   display: -webkit-box;

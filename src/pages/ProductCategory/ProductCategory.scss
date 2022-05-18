@@ -18,11 +18,13 @@
         flex-wrap: wrap;
         max-height: 110px;
         overflow-y: auto;
+        width: 100%;
         .filter-item-chip-item {
           border: 2px solid #000;
           font-size: 12px;
           margin-right: 8px;
           border-radius: 2px;
+
           &:last-child {
             margin-right: 0;
           }

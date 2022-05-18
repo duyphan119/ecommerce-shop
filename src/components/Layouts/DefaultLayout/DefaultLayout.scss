@@ -1,4 +1,10 @@
 .default-layout {
   min-height: 100vh;
-  background-color: #eee;
+  .layout-wrapper {
+    flex: 1;
+    padding: 60px 0 260px 0;
+    .container {
+      height: 100vh;
+    }
+  }
 }

@@ -13,7 +13,7 @@ const Product = ({ product }) => {
           />
         </Link>
         <div className="card-body p-1">
-          <div className="card-text">
+          <div className="card-text d-flex flex-column justify-content-between">
             <Link
               to={`/product/${product.slug}`}
               style={{ fontSize: "14px" }}

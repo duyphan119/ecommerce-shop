@@ -61,7 +61,6 @@ const ProductDetail = () => {
               product_detail_id:
                 product.colors[indexColor].sizes[indexSize].detail_id,
               quantity,
-              product_price: product.price,
               cart_id: user.cart.id,
             }
           );

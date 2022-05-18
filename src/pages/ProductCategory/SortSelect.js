@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const SortSelect = () => {
+const SortSelect = ({ getFilter }) => {
   const [sort, setSort] = useState({
     isShow: false,
     items: [
@@ -25,6 +25,11 @@ const SortSelect = () => {
 
   function handleSelectDropdownItem(index) {
     setSelectedSort(index);
+    if (index !== 0) {
+      getFilter(sort.items[index]);
+    } else {
+      getFilter({});
+    }
     setSort({ ...sort, isShow: !sort.isShow });
   }
 
@@ -47,6 +52,7 @@ const SortSelect = () => {
               <div
                 className="sort-select-dropdown-item d-flex align-items-center p-1 justify-content-between"
                 onClick={() => handleSelectDropdownItem(index)}
+                key={index}
               >
                 <span className="">{item.title}</span>
                 <span

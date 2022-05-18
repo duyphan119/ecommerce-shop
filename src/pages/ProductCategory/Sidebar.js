@@ -2,22 +2,56 @@ import { useState, useEffect } from "react";
 import { configAxiosResponse } from "../../config/configAxios";
 import { API_COLOR_URL, API_MATERIAL_URL, API_SIZE_URL } from "../../constants";
 
-const Sidebar = () => {
-  const [filters, setFilters] = useState([
+const Sidebar = ({
+  getFilter,
+  material,
+  color,
+  size,
+  price,
+  getFilterPrice,
+}) => {
+  const [filters, setFilters] = useState([]);
+  const [filterPrice, setFilterPrice] = useState({
+    active: true,
+    key: "price",
+    title: "Giá tiền",
+    items: [
+      {
+        text: "Tất cả",
+        value: JSON.stringify([]),
+        active: false,
+      },
+      {
+        text: "Nhỏ hơn 250000",
+        value: JSON.stringify([0, 249999]),
+        active: false,
+      },
+      {
+        text: "Từ 250000 đến 500000",
+        value: JSON.stringify([250000, 500000]),
+        active: false,
+      },
+      {
+        text: "Lớn hơn 500000",
+        value: JSON.stringify([500001]),
+        active: false,
+      },
+    ],
+  });
+  const [selectedFilters, setSelectedFilters] = useState([
     {
-      title: "Chất liệu",
       key: "material",
-      items: ["a", "b", "c"],
-      active: true,
+      items: material ? JSON.parse(material) : [],
     },
     {
-      title: "Màu sắc",
       key: "color",
-      items: ["Đỏ", "Xanh dương", "Tím"],
-      active: true,
+      items: color ? JSON.parse(color) : [],
+    },
+    {
+      key: "size",
+      items: size ? JSON.parse(size) : [],
     },
   ]);
-  const [selectedFilters, setSelectedFilters] = useState([]);
 
   useEffect(() => {
     (async function () {
@@ -30,28 +64,31 @@ const Sidebar = () => {
       const promise3 = new Promise(async (resolve, reject) => {
         resolve(configAxiosResponse().get(`${API_SIZE_URL}`));
       });
-      Promise.all([promise1, promise2, promise3]).then((values) => {
-        const data = [];
-        data.push({
-          key: "material",
-          title: "Chất liệu",
-          items: values[0].map((el) => el.value),
-          active: true,
-        });
-        data.push({
-          key: "color",
-          title: "Màu sắc",
-          items: values[1].map((el) => el.value),
-          active: true,
-        });
-        data.push({
-          key: "size",
-          title: "Kích cỡ",
-          items: values[2].map((el) => el.value),
-          active: true,
-        });
-        setFilters(data);
-      });
+      Promise.all([promise1, promise2, promise3])
+        .then((values) => {
+          const data = [];
+          data.push({
+            key: "material",
+            title: "Chất liệu",
+            items: values[0].map((el) => el.value),
+            active: true,
+          });
+          data.push({
+            key: "color",
+            title: "Màu sắc",
+            items: values[1].map((el) => el.value),
+            active: true,
+          });
+          data.push({
+            key: "size",
+            title: "Kích cỡ",
+            items: values[2].map((el) => el.value),
+            active: true,
+          });
+
+          setFilters(data);
+        })
+        .catch((err) => console.log(err));
     })();
   }, []);
 
@@ -61,13 +98,11 @@ const Sidebar = () => {
     _filters[index].active = !_filters[index].active;
     setFilters(_filters);
   }
-
   function handleSelectFilter(item) {
     const _selectedFilters = [...selectedFilters];
     const _indexSelected = _selectedFilters.findIndex(
       (el) => el.key === item.key
     );
-    console.log(_indexSelected);
     if (_indexSelected !== -1) {
       const _indexItem = _selectedFilters[_indexSelected].items.findIndex(
         (el) => el === item.item
@@ -85,6 +120,7 @@ const Sidebar = () => {
         items: [item.item],
       });
     }
+    getFilter(_selectedFilters);
     setSelectedFilters(_selectedFilters);
   }
 
@@ -176,6 +212,52 @@ const Sidebar = () => {
             )}
           </li>
         ))}
+        <li key={filterPrice.title} className="p-2  sidebar-filter-item">
+          <div
+            className="d-flex align-items-center justify-content-between font-weight-bold"
+            onClick={() =>
+              setFilterPrice({ ...filterPrice, active: !filterPrice.active })
+            }
+          >
+            <span>{filterPrice.title}</span>
+            <i
+              className={`fa ${
+                filterPrice.active ? "fa-chevron-up" : "fa-chevron-down"
+              }`}
+              aria-hidden="true"
+            ></i>
+          </div>
+          {filterPrice.active && (
+            <ul
+              className={`custom-scrollbar ${
+                filterPrice.active ? "active" : ""
+              }`}
+            >
+              {filterPrice.items.map((item, index) => (
+                <li key={index} className={`${item.active ? "active" : ""}`}>
+                  <label htmlFor={`price${index}`}>
+                    <input
+                      type="checkbox"
+                      className="mr-1"
+                      name="price"
+                      id={`price${index}`}
+                      value={item.value}
+                      onChange={() => {
+                        getFilterPrice(item);
+                      }}
+                      checked={
+                        price
+                          ? price === item.value
+                          : item.value === JSON.stringify([])
+                      }
+                    />
+                    <span>{item.text}</span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
       </ul>
     </div>
   );

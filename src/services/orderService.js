@@ -3,7 +3,7 @@ const user = require("../models/user");
 const getAll = async (query) => {
   return new Promise(async (resolve, reject) => {
     try {
-      let { limit } = query;
+      let { limit, p } = query;
       let option = {
         attributes: {
           exclude: ["order_status_id"],
@@ -88,8 +88,19 @@ const getAll = async (query) => {
       if (limit) {
         option.limit = parseInt(limit);
       }
+      if (p && limit) {
+        option.offset = parseInt(p);
+      }
       const orders = await db.Order.findAll(option);
-      resolve({ status: 200, data: orders });
+      const count = await db.Order.count();
+      resolve({
+        status: 200,
+        data: {
+          items: orders,
+          total_page: Math.ceil(count / (!limit ? 1 : parseInt(limit))),
+          total_result: count,
+        },
+      });
     } catch (error) {
       resolve({
         status: 500,
@@ -241,11 +252,9 @@ const create = async (body) => {
 const update = async (body) => {
   return new Promise(async (resolve, reject) => {
     try {
-      console.log(body);
       const { id, ...others } = body;
       await db.Order.update(others, { where: { id } });
-      const existingOrder = await getById(id);
-      resolve({ status: 200, data: existingOrder.data });
+      resolve({ status: 200, data: "Updated" });
     } catch (error) {
       resolve({ status: 500, data: { error, message: "error update order" } });
     }

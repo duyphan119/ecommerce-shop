@@ -1,9 +1,5 @@
 const { Op } = require("sequelize");
 const db = require("../models");
-const productService = require("./productService");
-const categoryService = require("./categoryService");
-const colorService = require("./colorService");
-const sizeService = require("./sizeService");
 const getAll = async () => {
   return new Promise(async (resolve, reject) => {
     try {

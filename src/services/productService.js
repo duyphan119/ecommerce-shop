@@ -35,74 +35,96 @@ const getAll = async (query) => {
       if (type && type === "best-seller") {
         products = await db.OrderItem.findAll({
           nest: true,
-          include: {
-            model: db.ProductDetail,
-            as: "detail",
-            include: {
-              model: db.Product,
-              as: "product",
-              include: [
-                {
-                  model: db.ProductDetail,
-                  as: "details",
-                  separate: true,
-                  attributes: {
-                    exclude: [
-                      "product_id",
-                      "color_id",
-                      "size_id",
-                      "createdAt",
-                      "updatedAt",
-                    ],
-                  },
-                  include: [
-                    {
-                      model: db.Color,
-                      as: "color",
-                      attributes: {
-                        exclude: ["createdAt", "updatedAt"],
-                      },
-                    },
-                    {
-                      model: db.Size,
-                      as: "size",
-                      attributes: {
-                        exclude: ["createdAt", "updatedAt"],
-                      },
-                    },
-                  ],
-                },
-                {
-                  model: db.Category,
-                  as: "category",
-                  attributes: {
-                    exclude: ["group_category_id", "createdAt", "updatedAt"],
-                  },
-                  include: [
-                    {
-                      model: db.GroupCategory,
-                      as: "group_category",
-                      attributes: {
-                        exclude: ["gender_id", "createdAt", "updatedAt"],
-                      },
-                      include: [
-                        {
-                          model: db.Gender,
-                          as: "gender",
-                          attributes: {
-                            exclude: ["createdAt", "updatedAt"],
-                          },
-                        },
+          include: [
+            {
+              model: db.ProductDetail,
+              as: "detail",
+              include: {
+                model: db.Product,
+                as: "product",
+                include: [
+                  {
+                    model: db.ProductDetail,
+                    as: "details",
+                    separate: true,
+                    attributes: {
+                      exclude: [
+                        "product_id",
+                        "color_id",
+                        "size_id",
+                        "createdAt",
+                        "updatedAt",
                       ],
                     },
-                  ],
-                },
-                {
-                  model: db.Image,
-                  as: "images",
-                  separate: true,
-                },
-              ],
+                    include: [
+                      {
+                        model: db.Color,
+                        as: "color",
+                        attributes: {
+                          exclude: ["createdAt", "updatedAt"],
+                        },
+                      },
+                      {
+                        model: db.Size,
+                        as: "size",
+                        attributes: {
+                          exclude: ["createdAt", "updatedAt"],
+                        },
+                      },
+                    ],
+                  },
+                  {
+                    model: db.Category,
+                    as: "category",
+                    attributes: {
+                      exclude: ["group_category_id", "createdAt", "updatedAt"],
+                    },
+                    include: [
+                      {
+                        model: db.GroupCategory,
+                        as: "group_category",
+                        attributes: {
+                          exclude: ["gender_id", "createdAt", "updatedAt"],
+                        },
+                        include: [
+                          {
+                            model: db.Gender,
+                            as: "gender",
+                            attributes: {
+                              exclude: ["createdAt", "updatedAt"],
+                            },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    model: db.Image,
+                    as: "images",
+                    separate: true,
+                  },
+                  {
+                    model: db.Discount,
+                    as: "discounts",
+                    required: false,
+                    where: {
+                      finish: {
+                        [Op.gt]: new Date(),
+                      },
+                    },
+                    limit: 1,
+                  },
+                ],
+              },
+            },
+            {
+              model: db.Order,
+              as: "order",
+            },
+          ],
+          where: {
+            "$order.order_status_id$": {
+              [Op.not]: 1,
             },
           },
           group: [db.sequelize.col("detail.product_id")],
@@ -133,6 +155,7 @@ const getAll = async (query) => {
           data: {
             items: products,
             total_page: Math.ceil(count / (!limit ? 20 : parseInt(limit))),
+            total_result: count,
           },
         });
       } else {
@@ -142,11 +165,20 @@ const getAll = async (query) => {
           attributes: {
             exclude: ["category_id"],
           },
+          include: [
+            {
+              model: db.Category,
+              as: "category",
+              attributes: {
+                exclude: ["group_category_id", "createdAt", "updatedAt"],
+              },
+            },
+          ],
         };
         if (limit) {
           option.limit = parseInt(limit);
         }
-        if (p) {
+        if (p && limit) {
           option.offset = parseInt(limit) * (parseInt(p) - 1);
         }
         if (include) {
@@ -209,6 +241,17 @@ const getAll = async (query) => {
               model: db.Image,
               as: "images",
             },
+            {
+              model: db.Discount,
+              as: "discounts",
+              required: false,
+              where: {
+                finish: {
+                  [Op.gt]: new Date(),
+                },
+              },
+              limit: 1,
+            },
           ];
         }
         products = await db.Product.findAll(option);
@@ -228,6 +271,17 @@ const getAll = async (query) => {
             data: {
               items: products,
               total_page: Math.ceil(count / (!limit ? 20 : parseInt(limit))),
+              total_result: count,
+            },
+          });
+        } else if (limit || p) {
+          count = await db.Product.count();
+          resolve({
+            status: 200,
+            data: {
+              items: products,
+              total_page: Math.ceil(count / (!limit ? 20 : parseInt(limit))),
+              total_result: count,
             },
           });
         }
@@ -280,7 +334,7 @@ const search = async (query) => {
       if (limit) {
         option.limit = parseInt(limit);
       }
-      if (p) {
+      if (p && limit) {
         option.offset = parseInt(limit) * (parseInt(p) - 1);
       }
       if (include) {
@@ -343,6 +397,17 @@ const search = async (query) => {
             model: db.Image,
             as: "images",
           },
+          {
+            model: db.Discount,
+            as: "discounts",
+            required: false,
+            where: {
+              finish: {
+                [Op.gt]: new Date(),
+              },
+            },
+            limit: 1,
+          },
         ];
       }
       let products = await db.Product.findAll(option);
@@ -364,6 +429,7 @@ const search = async (query) => {
             : {
                 items: products,
                 total_page: Math.ceil(count / parseInt(limit)),
+                total_result: count,
               },
         });
       }
@@ -453,6 +519,17 @@ const getByGenderSlug = async (query, slug) => {
             model: db.Image,
             as: "images",
           },
+          {
+            model: db.Discount,
+            as: "discounts",
+            required: false,
+            where: {
+              finish: {
+                [Op.gt]: new Date(),
+              },
+            },
+            limit: 1,
+          },
         ],
         where: { "$Category.Group_Category.Gender.slug$": slug },
         limit: !limit ? 10 : parseInt(limit),
@@ -506,6 +583,7 @@ const getByGenderSlug = async (query, slug) => {
         data: {
           items: existingProducts,
           total_page: Math.ceil(count / (!limit ? 10 : parseInt(limit))),
+          total_result: count,
         },
       });
     } catch (error) {
@@ -648,6 +726,17 @@ const getByGroupCategorySlug = async (query, slug) => {
             model: db.Image,
             as: "images",
           },
+          {
+            model: db.Discount,
+            as: "discounts",
+            required: false,
+            where: {
+              finish: {
+                [Op.gt]: new Date(),
+              },
+            },
+            limit: 1,
+          },
         ],
         limit: !limit ? 10 : parseInt(limit),
         offset: (!p ? 0 : parseInt(p) - 1) * (!limit ? 10 : parseInt(limit)),
@@ -680,7 +769,7 @@ const getByGroupCategorySlug = async (query, slug) => {
         data: {
           items: existingProducts,
           total_page: Math.ceil(count / (!limit ? 10 : parseInt(limit))),
-          total_rows: count,
+          total_result: count,
         },
       });
     } catch (error) {
@@ -775,14 +864,6 @@ const getByCategorySlug = async (query, slug) => {
                 attributes: {
                   exclude: ["createdAt", "updatedAt"],
                 },
-                // where:
-                //   color.length > 0
-                //     ? {
-                //         value: {
-                //           [Op.in]: color,
-                //         },
-                //       }
-                //     : {},
               },
               {
                 model: db.Size,
@@ -790,14 +871,6 @@ const getByCategorySlug = async (query, slug) => {
                 attributes: {
                   exclude: ["createdAt", "updatedAt"],
                 },
-                // where:
-                //   size.length > 0
-                //     ? {
-                //         value: {
-                //           [Op.in]: size,
-                //         },
-                //       }
-                //     : {},
               },
             ],
           },
@@ -833,6 +906,17 @@ const getByCategorySlug = async (query, slug) => {
             model: db.Image,
             as: "images",
           },
+          {
+            model: db.Discount,
+            as: "discounts",
+            required: false,
+            where: {
+              finish: {
+                [Op.gt]: new Date(),
+              },
+            },
+            limit: 1,
+          },
         ],
         limit: !limit ? 10 : parseInt(limit),
         offset: (!p ? 0 : parseInt(p) - 1) * (!limit ? 10 : parseInt(limit)),
@@ -865,7 +949,7 @@ const getByCategorySlug = async (query, slug) => {
         data: {
           items: existingProducts,
           total_page: Math.ceil(count / (!limit ? 10 : parseInt(limit))),
-          total_rows: count,
+          total_result: count,
         },
       });
       // resolve({
@@ -948,6 +1032,17 @@ const getBySlug = async (slug) => {
             model: db.Image,
             as: "images",
           },
+          {
+            model: db.Discount,
+            as: "discounts",
+            required: false,
+            where: {
+              finish: {
+                [Op.gt]: new Date(),
+              },
+            },
+            limit: 1,
+          },
         ],
         where: { slug },
       });
@@ -1029,6 +1124,21 @@ const getById = async (id) => {
                 ],
               },
             ],
+          },
+          {
+            model: db.Image,
+            as: "images",
+          },
+          {
+            model: db.Discount,
+            as: "discounts",
+            required: false,
+            where: {
+              finish: {
+                [Op.gt]: new Date(),
+              },
+            },
+            limit: 1,
           },
         ],
         where: { id },

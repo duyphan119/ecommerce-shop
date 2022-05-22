@@ -19,6 +19,9 @@ const orderItem = require("./orderItem");
 const image = require("./image");
 const statistics = require("./statistics");
 const upload = require("./upload");
+const productMaterial = require("./productMaterial");
+const comment = require("./comment");
+const repliedComment = require("./repliedComment");
 const configRoute = (app) => {
   app.use("/v1/api/auth", auth);
   app.use("/v1/api/user", user);
@@ -37,9 +40,12 @@ const configRoute = (app) => {
   app.use("/v1/api/order-item", orderItem);
   app.use("/v1/api/order", order);
   app.use("/v1/api/order-status", orderStatus);
+  app.use("/v1/api/product-material", productMaterial);
   app.use("/v1/api/coupon", coupon);
   app.use("/v1/api/image", image);
   app.use("/v1/api/statistics", statistics);
   app.use("/v1/api/upload", upload);
+  app.use("/v1/api/comment", comment);
+  app.use("/v1/api/replied-comment", repliedComment);
 };
 module.exports = configRoute;

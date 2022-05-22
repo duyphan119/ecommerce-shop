@@ -4,6 +4,10 @@ module.exports = (sequelize, DataTypes) => {
   class Discount extends Model {
     static associate(models) {
       // define association here
+      Discount.belongsTo(models.Product, {
+        foreignKey: "product_id",
+        as: "product",
+      });
     }
   }
   Discount.init(
@@ -11,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       percent: DataTypes.FLOAT,
       finish: DataTypes.DATE,
       product_id: DataTypes.INTEGER,
+      new_price: DataTypes.INTEGER,
     },
     {
       sequelize,

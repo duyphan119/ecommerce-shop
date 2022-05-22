@@ -1,4 +1,5 @@
 const db = require("../models");
+const { Op } = require("sequelize");
 const getAll = async () => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -45,6 +46,17 @@ const getByUser = async (user_id) => {
                       {
                         model: db.Image,
                         as: "images",
+                      },
+                      {
+                        model: db.Discount,
+                        as: "discounts",
+                        required: false,
+                        where: {
+                          finish: {
+                            [Op.gt]: new Date(),
+                          },
+                        },
+                        limit: 1,
                       },
                     ],
                   },

@@ -44,6 +44,17 @@ const getById = async (id) => {
                     model: db.Image,
                     as: "images",
                   },
+                  {
+                    model: db.Discount,
+                    as: "discounts",
+                    required: false,
+                    where: {
+                      finish: {
+                        [Op.gt]: new Date(),
+                      },
+                    },
+                    limit: 1,
+                  },
                 ],
               },
               {
@@ -134,6 +145,17 @@ const create = async (body) => {
                         model: db.Image,
                         as: "images",
                       },
+                      {
+                        model: db.Discount,
+                        as: "discounts",
+                        required: false,
+                        where: {
+                          finish: {
+                            [Op.gt]: new Date(),
+                          },
+                        },
+                        limit: 1,
+                      },
                     ],
                   },
                   {
@@ -194,6 +216,17 @@ const create = async (body) => {
                       {
                         model: db.Image,
                         as: "images",
+                      },
+                      {
+                        model: db.Discount,
+                        as: "discounts",
+                        required: false,
+                        where: {
+                          finish: {
+                            [Op.gt]: new Date(),
+                          },
+                        },
+                        limit: 1,
                       },
                     ],
                   },

@@ -3,7 +3,18 @@ const { toSlug } = require("../utils");
 const getAll = async () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const groupCategories = await db.GroupCategory.findAll();
+      const groupCategories = await db.GroupCategory.findAll({
+        nest: true,
+        include: [
+          {
+            model: db.Gender,
+            as: "gender",
+            attributes: {
+              exclude: ["gender_id"],
+            },
+          },
+        ],
+      });
       resolve({ status: 200, data: groupCategories });
     } catch (error) {
       resolve({
@@ -17,7 +28,17 @@ const getById = async (id) => {
   return new Promise(async (resolve, reject) => {
     try {
       const existingGroupCategory = await db.GroupCategory.findOne({
+        nest: true,
         where: { id },
+        include: [
+          {
+            model: db.Gender,
+            as: "gender",
+            attributes: {
+              exclude: ["gender_id"],
+            },
+          },
+        ],
       });
       resolve({ status: 200, data: existingGroupCategory });
     } catch (error) {

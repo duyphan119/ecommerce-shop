@@ -30,7 +30,22 @@ const getAll = async () => {
 const getById = async (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const existingGender = await db.Gender.findOne({ where: { id } });
+      const existingGender = await db.Gender.findOne({
+        where: { id },
+        nest: true,
+        include: [
+          {
+            model: db.GroupCategory,
+            as: "group_categories",
+            include: [
+              {
+                model: db.Category,
+                as: "categories",
+              },
+            ],
+          },
+        ],
+      });
       resolve({ status: 200, data: existingGender });
     } catch (error) {
       resolve({
@@ -46,7 +61,8 @@ const create = async (body) => {
       const { name } = body;
       const slug = toSlug(name);
       const createdGender = await db.Gender.create({ ...body, slug });
-      resolve({ status: 200, data: createdGender });
+      const existingGender = await getById(createdGender.id);
+      resolve({ status: 200, data: existingGender.data });
     } catch (error) {
       resolve({
         status: 500,

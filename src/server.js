@@ -8,20 +8,20 @@ const cookieSession = require("cookie-session");
 const cookieParser = require("cookie-parser");
 const path = require("path");
 const { createServer } = require("http");
-// const { Server } = require("socket.io");
-// const socketIO = require("./socket");
+const { Server } = require("socket.io");
+const socketIO = require("./socket");
 require("dotenv").config();
 
 const app = express();
 const httpServer = createServer(app);
-// const io = new Server(httpServer, {
-//   cors: {
-//     origin: true,
-//   },
-// });
+const io = new Server(httpServer, {
+  cors: {
+    origin: true,
+  },
+});
 const port = process.env.PORT || 5000;
 
-// socketIO(io);
+socketIO(io);
 app.use(cookieParser());
 
 //Config app

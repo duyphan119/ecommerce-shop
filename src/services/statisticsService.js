@@ -4,8 +4,7 @@ const getRevenue = async (query) => {
   return new Promise(async (resolve, reject) => {
     try {
       const { type } = query;
-      if (type === "daysInMonth") {
-        //
+      if (type === "hoursInDay") {
         const revenues = await db.Order.findAll({
           group: [db.sequelize.fn("hour", db.sequelize.col("createdAt"))],
           attributes: [

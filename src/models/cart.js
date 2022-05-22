@@ -23,7 +23,6 @@ module.exports = (sequelize, DataTypes) => {
     {
       count: DataTypes.INTEGER,
       user_id: DataTypes.INTEGER,
-      total: DataTypes.INTEGER,
     },
     {
       sequelize,

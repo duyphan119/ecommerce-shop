@@ -2,7 +2,7 @@ const db = require("../models");
 const getAll = async () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const materials = await db.Material.findAll();
+      const materials = await db.Material.findAll({ order: [["id", "desc"]] });
       resolve({ status: 200, data: materials });
     } catch (error) {
       resolve({

@@ -3,7 +3,6 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Product extends Model {
     static associate(models) {
-      // define association here
       Product.hasMany(models.ProductDetail, {
         foreignKey: "product_id",
         as: "details",
@@ -15,6 +14,18 @@ module.exports = (sequelize, DataTypes) => {
       Product.hasMany(models.Image, {
         foreignKey: "product_id",
         as: "images",
+      });
+      Product.hasMany(models.ProductMaterial, {
+        foreignKey: "product_id",
+        as: "materials",
+      });
+      Product.hasMany(models.Comment, {
+        foreignKey: "product_id",
+        as: "comments",
+      });
+      Product.hasMany(models.Discount, {
+        foreignKey: "product_id",
+        as: "discounts",
       });
     }
   }

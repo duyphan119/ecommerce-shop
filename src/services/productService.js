@@ -1,7 +1,6 @@
 const db = require("../models");
 const { toSlug } = require("../utils");
 const { Op } = require("sequelize");
-const { sequelize } = require("../models");
 
 const formatProductColors = (product) => {
   let arrColors = [];
@@ -26,7 +25,7 @@ const formatProductColors = (product) => {
   return arrColors;
 };
 
-const getAll = async (query) => {
+const getAll = async (user, query) => {
   return new Promise(async (resolve, reject) => {
     try {
       const { limit, p, type, include } = query;
@@ -114,6 +113,15 @@ const getAll = async (query) => {
                     },
                     limit: 1,
                   },
+                  {
+                    model: db.ProductUser,
+                    as: "product_users",
+                    required: false,
+                    where: {
+                      user_id: user ? user.id : "",
+                    },
+                    limit: 1,
+                  },
                 ],
               },
             },
@@ -154,6 +162,7 @@ const getAll = async (query) => {
           status: 200,
           data: {
             items: products,
+            limit: !limit ? 20 : parseInt(limit),
             total_page: Math.ceil(count / (!limit ? 20 : parseInt(limit))),
             total_result: count,
           },
@@ -252,6 +261,15 @@ const getAll = async (query) => {
               },
               limit: 1,
             },
+            {
+              model: db.ProductUser,
+              as: "product_users",
+              required: false,
+              where: {
+                user_id: user ? user.id : "",
+              },
+              limit: 1,
+            },
           ];
         }
         products = await db.Product.findAll(option);
@@ -270,6 +288,7 @@ const getAll = async (query) => {
             status: 200,
             data: {
               items: products,
+              limit: !limit ? 20 : parseInt(limit),
               total_page: Math.ceil(count / (!limit ? 20 : parseInt(limit))),
               total_result: count,
             },
@@ -280,6 +299,8 @@ const getAll = async (query) => {
             status: 200,
             data: {
               items: products,
+              items: products,
+              limit: !limit ? 20 : parseInt(limit),
               total_page: Math.ceil(count / (!limit ? 20 : parseInt(limit))),
               total_result: count,
             },
@@ -299,7 +320,7 @@ const getAll = async (query) => {
     }
   });
 };
-const search = async (query) => {
+const search = async (user, query) => {
   return new Promise(async (resolve, reject) => {
     try {
       const { limit, q, p, include } = query;
@@ -408,6 +429,15 @@ const search = async (query) => {
             },
             limit: 1,
           },
+          {
+            model: db.ProductUser,
+            as: "product_users",
+            required: false,
+            where: {
+              user_id: user ? user.id : "",
+            },
+            limit: 1,
+          },
         ];
       }
       let products = await db.Product.findAll(option);
@@ -428,6 +458,7 @@ const search = async (query) => {
             ? products
             : {
                 items: products,
+                limit: parseInt(limit),
                 total_page: Math.ceil(count / parseInt(limit)),
                 total_result: count,
               },
@@ -447,7 +478,7 @@ const search = async (query) => {
     }
   });
 };
-const getByGenderSlug = async (query, slug) => {
+const getByGenderSlug = async (user, query, slug) => {
   return new Promise(async (resolve, reject) => {
     try {
       const { limit, p } = query;
@@ -530,6 +561,15 @@ const getByGenderSlug = async (query, slug) => {
             },
             limit: 1,
           },
+          {
+            model: db.ProductUser,
+            as: "product_users",
+            required: false,
+            where: {
+              user_id: user ? user.id : "",
+            },
+            limit: 1,
+          },
         ],
         where: { "$Category.Group_Category.Gender.slug$": slug },
         limit: !limit ? 10 : parseInt(limit),
@@ -582,6 +622,7 @@ const getByGenderSlug = async (query, slug) => {
         status: 200,
         data: {
           items: existingProducts,
+          limit: !limit ? 10 : parseInt(limit),
           total_page: Math.ceil(count / (!limit ? 10 : parseInt(limit))),
           total_result: count,
         },
@@ -595,7 +636,7 @@ const getByGenderSlug = async (query, slug) => {
     }
   });
 };
-const getByGroupCategorySlug = async (query, slug) => {
+const getByGroupCategorySlug = async (user, query, slug) => {
   return new Promise(async (resolve, reject) => {
     try {
       let { limit, p, size, color, material, price, sortBy, sortType } = query;
@@ -737,6 +778,15 @@ const getByGroupCategorySlug = async (query, slug) => {
             },
             limit: 1,
           },
+          {
+            model: db.ProductUser,
+            as: "product_users",
+            required: false,
+            where: {
+              user_id: user ? user.id : "",
+            },
+            limit: 1,
+          },
         ],
         limit: !limit ? 10 : parseInt(limit),
         offset: (!p ? 0 : parseInt(p) - 1) * (!limit ? 10 : parseInt(limit)),
@@ -768,6 +818,7 @@ const getByGroupCategorySlug = async (query, slug) => {
         status: 200,
         data: {
           items: existingProducts,
+          limit: !limit ? 10 : parseInt(limit),
           total_page: Math.ceil(count / (!limit ? 10 : parseInt(limit))),
           total_result: count,
         },
@@ -781,7 +832,7 @@ const getByGroupCategorySlug = async (query, slug) => {
     }
   });
 };
-const getByCategorySlug = async (query, slug) => {
+const getByCategorySlug = async (user, query, slug) => {
   return new Promise(async (resolve, reject) => {
     try {
       let { limit, p, size, color, material, price, sortBy, sortType } = query;
@@ -917,6 +968,15 @@ const getByCategorySlug = async (query, slug) => {
             },
             limit: 1,
           },
+          {
+            model: db.ProductUser,
+            as: "product_users",
+            required: false,
+            where: {
+              user_id: user ? user.id : "",
+            },
+            limit: 1,
+          },
         ],
         limit: !limit ? 10 : parseInt(limit),
         offset: (!p ? 0 : parseInt(p) - 1) * (!limit ? 10 : parseInt(limit)),
@@ -948,6 +1008,7 @@ const getByCategorySlug = async (query, slug) => {
         status: 200,
         data: {
           items: existingProducts,
+          limit: !limit ? 10 : parseInt(limit),
           total_page: Math.ceil(count / (!limit ? 10 : parseInt(limit))),
           total_result: count,
         },
@@ -965,7 +1026,7 @@ const getByCategorySlug = async (query, slug) => {
     }
   });
 };
-const getBySlug = async (slug) => {
+const getBySlug = async (user, slug) => {
   return new Promise(async (resolve, reject) => {
     try {
       const existingProduct = await db.Product.findOne({
@@ -1040,6 +1101,15 @@ const getBySlug = async (slug) => {
               finish: {
                 [Op.gt]: new Date(),
               },
+            },
+            limit: 1,
+          },
+          {
+            model: db.ProductUser,
+            as: "product_users",
+            required: false,
+            where: {
+              user_id: user ? user.id : "",
             },
             limit: 1,
           },
@@ -1062,7 +1132,135 @@ const getBySlug = async (slug) => {
     }
   });
 };
-const getById = async (id) => {
+const getByUser = async (user_id, query) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const existingProductUsers = await db.ProductUser.findAll({
+        where: {
+          user_id,
+        },
+      });
+      const listId = existingProductUsers.map((item) => item.product_id);
+      let existingProducts = await db.Product.findAll({
+        order: [["id", "desc"]],
+        nest: true,
+        attributes: {
+          exclude: ["category_id"],
+        },
+        include: [
+          {
+            model: db.ProductDetail,
+            as: "details",
+            attributes: {
+              exclude: [
+                "product_id",
+                "color_id",
+                "size_id",
+                "createdAt",
+                "updatedAt",
+              ],
+            },
+            include: [
+              {
+                model: db.Color,
+                as: "color",
+                attributes: {
+                  exclude: ["createdAt", "updatedAt"],
+                },
+              },
+              {
+                model: db.Size,
+                as: "size",
+                attributes: {
+                  exclude: ["createdAt", "updatedAt"],
+                },
+              },
+            ],
+          },
+          {
+            model: db.Category,
+            as: "category",
+            required: true,
+            attributes: {
+              exclude: ["group_category_id", "createdAt", "updatedAt"],
+            },
+            include: [
+              {
+                model: db.GroupCategory,
+                as: "group_category",
+                required: true,
+                attributes: {
+                  exclude: ["gender_id", "createdAt", "updatedAt"],
+                },
+                include: [
+                  {
+                    model: db.Gender,
+                    as: "gender",
+                    required: true,
+                    attributes: {
+                      exclude: ["createdAt", "updatedAt"],
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            model: db.Image,
+            as: "images",
+          },
+          {
+            model: db.Discount,
+            as: "discounts",
+            required: false,
+            where: {
+              finish: {
+                [Op.gt]: new Date(),
+              },
+            },
+            limit: 1,
+          },
+          {
+            model: db.ProductUser,
+            as: "product_users",
+            required: false,
+            where: {
+              user_id,
+            },
+            limit: 1,
+          },
+        ],
+
+        where: {
+          id: {
+            [Op.in]: listId,
+          },
+        },
+      });
+
+      existingProducts = existingProducts.map((item) => {
+        const newObj = {
+          ...item.dataValues,
+          colors: formatProductColors(item),
+        };
+        delete newObj.details;
+        delete newObj.images;
+        return newObj;
+      });
+      resolve({
+        status: 200,
+        data: existingProducts,
+      });
+      resolve({ status: 200, data: existingProductUser });
+    } catch (error) {
+      resolve({
+        status: 500,
+        data: { error, message: "error create new product user" },
+      });
+    }
+  });
+};
+const getById = async (user, id) => {
   return new Promise(async (resolve, reject) => {
     try {
       const existingProduct = await db.Product.findOne({
@@ -1140,6 +1338,15 @@ const getById = async (id) => {
             },
             limit: 1,
           },
+          {
+            model: db.ProductUser,
+            as: "product_users",
+            required: false,
+            where: {
+              user_id: user ? user.id : "",
+            },
+            limit: 1,
+          },
         ],
         where: { id },
       });
@@ -1152,7 +1359,7 @@ const getById = async (id) => {
     }
   });
 };
-const create = async (body) => {
+const create = async (user, body) => {
   return new Promise(async (resolve, reject) => {
     try {
       const { name } = body;
@@ -1161,7 +1368,8 @@ const create = async (body) => {
         ...body,
         slug,
       });
-      resolve({ status: 200, data: createdProduct });
+      const existingProduct = await getById(user, createdProduct.id);
+      resolve({ status: 200, data: existingProduct.data });
     } catch (error) {
       resolve({
         status: 500,
@@ -1170,14 +1378,14 @@ const create = async (body) => {
     }
   });
 };
-const update = async (body) => {
+const update = async (user, body) => {
   return new Promise(async (resolve, reject) => {
     try {
       const { id, ...others } = body;
       const { name } = others;
       const slug = toSlug(name);
       await db.Product.update({ ...others, slug }, { where: { id } });
-      const existingProduct = await getById(id);
+      const existingProduct = await getById(user, id);
       resolve({ status: 200, data: existingProduct.data });
     } catch (error) {
       resolve({
@@ -1187,7 +1395,7 @@ const update = async (body) => {
     }
   });
 };
-const destroy = async (id) => {
+const destroy = async (user, id) => {
   return new Promise(async (resolve, reject) => {
     try {
       await db.Product.destroy({ where: { id } });
@@ -1209,6 +1417,7 @@ module.exports = {
   getByGroupCategorySlug,
   getByCategorySlug,
   getBySlug,
+  getByUser,
   getById,
   create,
   update,

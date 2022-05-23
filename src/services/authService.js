@@ -6,12 +6,12 @@ require("dotenv").config();
 const register = async (body) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const { email, password, role_id } = body;
+      const { email, password } = body;
       let existingUser = await db.User.findOne({ where: { email } });
       if (existingUser) {
         resolve({
           status: 500,
-          data: { error, message: "this email is available" },
+          data: { message: "this email is available" },
         });
       }
 
@@ -20,12 +20,13 @@ const register = async (body) => {
       const createdUser = await db.User.create({
         ...body,
         password: hashedPassword,
-        role_id: role_id ? role_id : 3,
+        role_id: 3,
       });
 
       existingUser = await userService.getById(createdUser.id);
       resolve({ status: 200, data: existingUser.data });
     } catch (error) {
+      console.log(error);
       resolve({
         status: 500,
         data: { error, message: "register fail" },

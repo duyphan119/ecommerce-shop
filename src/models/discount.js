@@ -12,7 +12,6 @@ module.exports = (sequelize, DataTypes) => {
   }
   Discount.init(
     {
-      percent: DataTypes.FLOAT,
       finish: DataTypes.DATE,
       product_id: DataTypes.INTEGER,
       new_price: DataTypes.INTEGER,

@@ -8,9 +8,6 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      percent: {
-        type: Sequelize.FLOAT,
-      },
       finish: {
         type: Sequelize.DATE,
       },

@@ -109,10 +109,11 @@ const getAll = async (query) => {
     }
   });
 };
-const getByUser = async (user_id) => {
+const getByUser = async (query, user_id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const existingOrder = await db.Order.findAll({
+      let { limit, p } = query;
+      const options = {
         where: { user_id },
         attributes: {
           exclude: ["order_status_id"],
@@ -193,9 +194,25 @@ const getByUser = async (user_id) => {
           },
         ],
         order: [["id", "desc"]],
+      };
+      const count = await db.Order.count({ where: { user_id } });
+      limit = !limit ? 20 : parseInt(limit);
+      p = !p ? 0 : parseInt(p) - 1;
+      options.limit = limit;
+      options.offset = p;
+
+      const existingOrders = await db.Order.findAll(options);
+      resolve({
+        status: 200,
+        data: {
+          items: existingOrders,
+          total_page: Math.ceil(count / limit),
+          limit,
+          total_result: count,
+        },
       });
-      resolve({ status: 200, data: existingOrder });
     } catch (error) {
+      console.log(error);
       resolve({
         status: 500,
         data: { error, message: "error get order by user" },

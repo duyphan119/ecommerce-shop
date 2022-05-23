@@ -28,19 +28,6 @@ const getById = async (id) => {
 const create = async (body) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const { percent, product_id } = body;
-      if (!body.new_price) {
-        const existingProduct = await db.Product.findOne({
-          where: {
-            id: product_id,
-          },
-        });
-        let x = Math.floor(
-          ((existingProduct.price / 1000) * (100 - percent)) / 100
-        );
-        x = x % 10 === 0 ? x - 1 : x;
-        body.new_price = x * 1000;
-      }
       const createdDiscount = await db.Discount.create(body);
       existingDiscount = await getById(createdDiscount.id);
       resolve({ status: 200, data: existingDiscount.data });

@@ -6,7 +6,10 @@ router.get("/", async (req, res) => {
   res.status(status).json(data);
 });
 router.get("/user/:user_id", async (req, res) => {
-  const { status, data } = await orderService.getByUser(req.params.user_id);
+  const { status, data } = await orderService.getByUser(
+    req.query,
+    req.params.user_id
+  );
   res.status(status).json(data);
 });
 router.get("/:order_id", async (req, res) => {

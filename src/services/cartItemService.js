@@ -180,7 +180,7 @@ const create = async (body) => {
         } else {
           resolve({
             status: 500,
-            data: { message: "error create old cart item" },
+            data: { message: "stuck" },
           });
         }
       } else {
@@ -252,7 +252,7 @@ const create = async (body) => {
         } else {
           resolve({
             status: 500,
-            data: { message: "error create new cart item 2" },
+            data: { message: "stuck" },
           });
         }
       }

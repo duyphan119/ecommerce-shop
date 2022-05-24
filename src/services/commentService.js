@@ -21,13 +21,21 @@ const getAll = async () => {
     }
   });
 };
-const getByUser = async (user_id) => {
+const getByUserProduct = async (user_id, product_id) => {
   return new Promise(async (resolve, reject) => {
     try {
       const existing_comment = await db.Comment.findOne({
         where: {
           user_id,
+          product_id,
         },
+        nest: true,
+        include: [
+          {
+            model: db.User,
+            as: "user",
+          },
+        ],
       });
       resolve({ status: 200, data: existing_comment });
     } catch (error) {
@@ -71,6 +79,7 @@ const getByProduct = async (query, product_id) => {
         data: {
           items: existing_comments,
           total_page: limit ? Math.ceil(count / parseInt(limit)) : 1,
+          limit: limit ? parseInt(limit) : 1,
           total_result: count,
         },
       });
@@ -108,15 +117,20 @@ const create = async (body) => {
   return new Promise(async (resolve, reject) => {
     try {
       const { user_id, product_id } = body;
-      const existing_comment = await db.Comment.findOne({
-        where: {
-          user_id,
-          product_id,
-        },
+      let existing_comment = await db.Comment.findOne({
+        where: { user_id, product_id },
+        include: [
+          {
+            model: db.User,
+            as: "user",
+          },
+        ],
+        nest: true,
       });
       if (!existing_comment) {
         const created_comment = await db.Comment.create(body);
-        resolve({ status: 200, data: created_comment });
+        existing_comment = await getById(created_comment.id);
+        resolve({ status: 200, data: existing_comment.data });
       } else {
         resolve({ status: 200, data: existing_comment });
       }
@@ -165,6 +179,6 @@ module.exports = {
   create,
   update,
   destroy,
-  getByUser,
+  getByUserProduct,
   getByProduct,
 };

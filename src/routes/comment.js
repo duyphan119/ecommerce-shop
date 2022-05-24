@@ -12,8 +12,11 @@ router.get("/product/:product_id", async (req, res) => {
   );
   res.status(status).json(data);
 });
-router.get("/user/:user_id", async (req, res) => {
-  const { status, data } = await commentService.getByUser(req.params.user_id);
+router.get("/user/:user_id/product/:product_id", async (req, res) => {
+  const { status, data } = await commentService.getByUserProduct(
+    req.params.user_id,
+    req.params.product_id
+  );
   res.status(status).json(data);
 });
 router.get("/:comment_id", async (req, res) => {

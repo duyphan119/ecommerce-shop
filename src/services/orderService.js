@@ -82,6 +82,10 @@ const getAll = async (query) => {
               exclude: ["createdAt", "updatedAt", "password"],
             },
           },
+          {
+            model: db.Coupon,
+            as: "coupon",
+          },
         ],
         order: [["id", "desc"]],
       };

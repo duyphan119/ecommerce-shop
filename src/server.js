@@ -10,6 +10,7 @@ const path = require("path");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const socketIO = require("./socket");
+const session = require("express-session");
 require("dotenv").config();
 
 const app = express();
@@ -19,6 +20,14 @@ const io = new Server(httpServer, {
     origin: true,
   },
 });
+// app.use(
+//   session({
+//     secret: "keyboard cat",
+//     resave: false,
+//     saveUninitialized: true,
+//     cookie: { secure: false, httpOnly: true },
+//   })
+// );
 const port = process.env.PORT || 5000;
 
 socketIO(io);

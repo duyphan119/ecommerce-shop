@@ -82,7 +82,6 @@ const create = async (body) => {
         ...body,
         slug,
       });
-      console.log(createdCategory.id);
       const existingCategory = await getById(createdCategory.id);
       resolve({ status: 200, data: existingCategory.data });
     } catch (error) {

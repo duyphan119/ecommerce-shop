@@ -16,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "user_id",
         as: "user",
       });
+      Order.belongsTo(models.Coupon, {
+        foreignKey: "coupon_id",
+        as: "coupon",
+      });
     }
   }
   Order.init(

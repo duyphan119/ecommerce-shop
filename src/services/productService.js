@@ -28,8 +28,77 @@ const formatProductColors = (product) => {
 const getAll = async (user, query) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const { limit, p, type, include } = query;
-
+      let {
+        limit,
+        p,
+        size,
+        color,
+        material,
+        price,
+        sortBy,
+        sortType,
+        type,
+        include,
+      } = query;
+      material = material ? JSON.parse(material) : [];
+      color = color ? JSON.parse(color) : [];
+      size = size ? JSON.parse(size) : [];
+      price = price ? JSON.parse(price) : [];
+      const filterWhere = {};
+      if (color.length > 0) {
+        filterWhere["$color.value$"] = {
+          [Op.in]: color,
+        };
+      }
+      if (size.length > 0) {
+        filterWhere["$size.value$"] = {
+          [Op.in]: size,
+        };
+      }
+      if (price.length > 0) {
+        filterWhere["$product.price$"] = {
+          [Op.and]: [
+            {
+              [Op.gte]: price[0],
+            },
+            {
+              [Op.lte]: price[1] ? price[1] : 9999999999,
+            },
+          ],
+        };
+      }
+      const filteredProductId = await db.ProductDetail.findAll({
+        nest: true,
+        include: [
+          {
+            model: db.Color,
+            as: "color",
+          },
+          {
+            model: db.Size,
+            as: "size",
+          },
+          {
+            model: db.Product,
+            as: "product",
+            include: [
+              {
+                model: db.Category,
+                as: "category",
+                include: [
+                  {
+                    model: db.GroupCategory,
+                    as: "group_category",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        where: filterWhere,
+        group: ["product.id"],
+      });
+      const listId = filteredProductId.map((item) => item.product.id);
       let products, count;
       if (type && type === "best-seller") {
         products = await db.OrderItem.findAll({
@@ -169,7 +238,7 @@ const getAll = async (user, query) => {
         });
       } else {
         const option = {
-          order: [["id", "desc"]],
+          order: [[sortBy ? sortBy : "id", sortType ? sortType : "desc"]],
           nest: true,
           attributes: {
             exclude: ["category_id"],
@@ -183,6 +252,11 @@ const getAll = async (user, query) => {
               },
             },
           ],
+          where: {
+            id: {
+              [Op.in]: listId,
+            },
+          },
         };
         if (limit) {
           option.limit = parseInt(limit);

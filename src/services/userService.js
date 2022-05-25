@@ -4,9 +4,17 @@ const getAll = async () => {
   return new Promise(async (resolve, reject) => {
     try {
       const users = await db.User.findAll({
+        order: [["id", "desc"]],
         attributes: {
           exclude: ["password"],
         },
+        include: [
+          {
+            model: db.Role,
+            as: "role",
+          },
+        ],
+        nest: true,
       });
       resolve({ status: 200, data: users });
     } catch (error) {

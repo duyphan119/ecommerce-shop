@@ -2,7 +2,7 @@ const db = require("../models");
 const getAll = async () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const roles = await db.Role.findAll();
+      const roles = await db.Role.findAll({ order: [["id", "desc"]] });
       resolve({ status: 200, data: roles });
     } catch (error) {
       resolve({ status: 500, data: { error, message: "error get all roles" } });

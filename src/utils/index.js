@@ -1,3 +1,5 @@
+const { Op } = require("sequelize");
+const db = require("../models");
 const toSlug = (str) => {
   // Chuyển hết sang chữ thường
   str = str.toLowerCase();
@@ -26,4 +28,147 @@ const toSlug = (str) => {
   // return
   return str;
 };
-module.exports = { toSlug };
+
+const defaultProductInclude = (user) => {
+  return [
+    {
+      model: db.ProductDetail,
+      as: "details",
+      attributes: {
+        exclude: [
+          "product_id",
+          "color_id",
+          "size_id",
+          "createdAt",
+          "updatedAt",
+        ],
+      },
+      include: [
+        {
+          model: db.Color,
+          as: "color",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
+        {
+          model: db.Size,
+          as: "size",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
+      ],
+    },
+    {
+      model: db.Category,
+      as: "category",
+      required: true,
+      attributes: {
+        exclude: ["group_category_id", "createdAt", "updatedAt"],
+      },
+      include: [
+        {
+          model: db.GroupCategory,
+          as: "group_category",
+          required: true,
+          attributes: {
+            exclude: ["gender_id", "createdAt", "updatedAt"],
+          },
+          include: [
+            {
+              model: db.Gender,
+              as: "gender",
+              required: true,
+              attributes: {
+                exclude: ["createdAt", "updatedAt"],
+              },
+            },
+          ],
+        },
+      ],
+    },
+    {
+      model: db.Image,
+      as: "images",
+    },
+    {
+      model: db.Discount,
+      as: "discounts",
+      required: false,
+      where: {
+        finish: {
+          [Op.gt]: new Date(),
+        },
+      },
+      limit: 1,
+    },
+    {
+      model: db.ProductUser,
+      as: "product_users",
+      required: false,
+      where: {
+        user_id: user ? user.id : "",
+      },
+      limit: 1,
+    },
+  ];
+};
+
+const defaultCategoryInclude = () => {
+  return [
+    {
+      model: db.Category,
+      as: "category",
+      required: true,
+      attributes: {
+        exclude: ["group_category_id", "createdAt", "updatedAt"],
+      },
+      include: [
+        {
+          model: db.GroupCategory,
+          as: "group_category",
+          required: true,
+          attributes: {
+            exclude: ["gender_id", "createdAt", "updatedAt"],
+          },
+          include: [
+            {
+              model: db.Gender,
+              as: "gender",
+              required: true,
+              attributes: {
+                exclude: ["createdAt", "updatedAt"],
+              },
+            },
+          ],
+        },
+      ],
+    },
+  ];
+};
+
+const defaultOrderItemInclude = (user) => {
+  return [
+    {
+      model: db.ProductDetail,
+      as: "detail",
+      include: {
+        model: db.Product,
+        as: "product",
+        include: defaultProductInclude(user),
+      },
+    },
+    {
+      model: db.Order,
+      as: "order",
+    },
+  ];
+};
+
+module.exports = {
+  toSlug,
+  defaultProductInclude,
+  defaultCategoryInclude,
+  defaultOrderItemInclude,
+};

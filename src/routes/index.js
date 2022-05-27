@@ -23,6 +23,7 @@ const productMaterial = require("./productMaterial");
 const comment = require("./comment");
 const repliedComment = require("./repliedComment");
 const productUser = require("./productUser");
+const banner = require("./banner");
 const configRoute = (app) => {
   app.use("/v1/api/auth", auth);
   app.use("/v1/api/user", user);
@@ -49,5 +50,6 @@ const configRoute = (app) => {
   app.use("/v1/api/comment", comment);
   app.use("/v1/api/replied-comment", repliedComment);
   app.use("/v1/api/product-user", productUser);
+  app.use("/v1/api/banner", banner);
 };
 module.exports = configRoute;

@@ -1,5 +1,9 @@
 const db = require("../models");
-const { toSlug } = require("../utils");
+const {
+  toSlug,
+  defaultProductInclude,
+  defaultCategoryInclude,
+} = require("../utils");
 const { Op } = require("sequelize");
 
 const formatProductColors = (product) => {
@@ -555,135 +559,163 @@ const search = async (user, query) => {
 const getByGenderSlug = async (user, query, slug) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const { limit, p } = query;
-      let existingProducts = await db.Product.findAll({
+      const { limit, p, type } = query;
+      let products, count;
+      if (type === "best-seller") {
+        products = await db.OrderItem.findAll({
+          nest: true,
+          include: [
+            {
+              model: db.ProductDetail,
+              as: "detail",
+              include: {
+                model: db.Product,
+                as: "product",
+                include: [
+                  {
+                    model: db.ProductDetail,
+                    as: "details",
+                    separate: true,
+                    attributes: {
+                      exclude: [
+                        "product_id",
+                        "color_id",
+                        "size_id",
+                        "createdAt",
+                        "updatedAt",
+                      ],
+                    },
+                    include: [
+                      {
+                        model: db.Color,
+                        as: "color",
+                        attributes: {
+                          exclude: ["createdAt", "updatedAt"],
+                        },
+                      },
+                      {
+                        model: db.Size,
+                        as: "size",
+                        attributes: {
+                          exclude: ["createdAt", "updatedAt"],
+                        },
+                      },
+                    ],
+                  },
+                  {
+                    model: db.Category,
+                    as: "category",
+                    attributes: {
+                      exclude: ["group_category_id", "createdAt", "updatedAt"],
+                    },
+                    include: [
+                      {
+                        model: db.GroupCategory,
+                        as: "group_category",
+                        attributes: {
+                          exclude: ["gender_id", "createdAt", "updatedAt"],
+                        },
+                        include: [
+                          {
+                            model: db.Gender,
+                            as: "gender",
+                            attributes: {
+                              exclude: ["createdAt", "updatedAt"],
+                            },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    model: db.Image,
+                    as: "images",
+                    separate: true,
+                  },
+                  {
+                    model: db.Discount,
+                    as: "discounts",
+                    required: false,
+                    where: {
+                      finish: {
+                        [Op.gt]: new Date(),
+                      },
+                    },
+                    limit: 1,
+                  },
+                  {
+                    model: db.ProductUser,
+                    as: "product_users",
+                    required: false,
+                    where: {
+                      user_id: user ? user.id : "",
+                    },
+                    limit: 1,
+                  },
+                ],
+              },
+            },
+            {
+              model: db.Order,
+              as: "order",
+            },
+          ],
+          where: {
+            "$Detail.Product.Category.Group_Category.Gender.slug$": slug,
+            "$order.order_status_id$": {
+              [Op.not]: 1,
+            },
+          },
+          group: [db.sequelize.col("detail.product_id")],
+          order: [[db.sequelize.fn("sum", db.sequelize.col("quantity"))]],
+          limit: !limit ? 5 : parseInt(limit),
+          offset: (!p ? 0 : parseInt(p) - 1) * (!limit ? 5 : parseInt(limit)),
+        });
+        let existingOrderItems = await db.OrderItem.findAll({
+          nest: true,
+          include: {
+            model: db.ProductDetail,
+            as: "detail",
+          },
+          group: [db.sequelize.col("detail.product_id")],
+        });
+        count = existingOrderItems.length;
+        products = products.map((item) => {
+          const newObj = {
+            ...item.detail.product.dataValues,
+            colors: formatProductColors(item.detail.product),
+          };
+          delete newObj.details;
+          delete newObj.images;
+          return newObj;
+        });
+        resolve({
+          status: 200,
+          data: {
+            items: products,
+            limit: !limit ? 20 : parseInt(limit),
+            total_page: Math.ceil(count / (!limit ? 20 : parseInt(limit))),
+            total_result: count,
+          },
+        });
+      }
+      products = await db.Product.findAll({
         order: [["id", "desc"]],
         nest: true,
         attributes: {
           exclude: ["category_id"],
         },
-        include: [
-          {
-            model: db.ProductDetail,
-            as: "details",
-            attributes: {
-              exclude: [
-                "product_id",
-                "color_id",
-                "size_id",
-                "createdAt",
-                "updatedAt",
-              ],
-            },
-            include: [
-              {
-                model: db.Color,
-                as: "color",
-                attributes: {
-                  exclude: ["createdAt", "updatedAt"],
-                },
-              },
-              {
-                model: db.Size,
-                as: "size",
-                attributes: {
-                  exclude: ["createdAt", "updatedAt"],
-                },
-              },
-            ],
-          },
-          {
-            model: db.Category,
-            as: "category",
-            required: true,
-            attributes: {
-              exclude: ["group_category_id", "createdAt", "updatedAt"],
-            },
-            include: [
-              {
-                model: db.GroupCategory,
-                as: "group_category",
-                required: true,
-                attributes: {
-                  exclude: ["gender_id", "createdAt", "updatedAt"],
-                },
-                include: [
-                  {
-                    model: db.Gender,
-                    as: "gender",
-                    required: true,
-                    attributes: {
-                      exclude: ["createdAt", "updatedAt"],
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            model: db.Image,
-            as: "images",
-          },
-          {
-            model: db.Discount,
-            as: "discounts",
-            required: false,
-            where: {
-              finish: {
-                [Op.gt]: new Date(),
-              },
-            },
-            limit: 1,
-          },
-          {
-            model: db.ProductUser,
-            as: "product_users",
-            required: false,
-            where: {
-              user_id: user ? user.id : "",
-            },
-            limit: 1,
-          },
-        ],
+        include: defaultProductInclude(user),
         where: { "$Category.Group_Category.Gender.slug$": slug },
         limit: !limit ? 10 : parseInt(limit),
         offset: (!p ? 0 : parseInt(p) - 1) * (!limit ? 10 : parseInt(limit)),
       });
-      const count = await db.Product.count({
+      count = await db.Product.count({
         where: { "$Category.Group_Category.Gender.slug$": slug },
-        include: [
-          {
-            model: db.Category,
-            as: "category",
-            required: true,
-            attributes: {
-              exclude: ["group_category_id", "createdAt", "updatedAt"],
-            },
-            include: [
-              {
-                model: db.GroupCategory,
-                as: "group_category",
-                required: true,
-                attributes: {
-                  exclude: ["gender_id", "createdAt", "updatedAt"],
-                },
-                include: [
-                  {
-                    model: db.Gender,
-                    as: "gender",
-                    required: true,
-                    attributes: {
-                      exclude: ["createdAt", "updatedAt"],
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-        ],
+        include: defaultCategoryInclude(),
         nest: true,
       });
-      existingProducts = existingProducts.map((item) => {
+      products = products.map((item) => {
         const newObj = {
           ...item.dataValues,
           colors: formatProductColors(item),
@@ -695,7 +727,7 @@ const getByGenderSlug = async (user, query, slug) => {
       resolve({
         status: 200,
         data: {
-          items: existingProducts,
+          items: products,
           limit: !limit ? 10 : parseInt(limit),
           total_page: Math.ceil(count / (!limit ? 10 : parseInt(limit))),
           total_result: count,
@@ -909,12 +941,27 @@ const getByGroupCategorySlug = async (user, query, slug) => {
 const getByCategorySlug = async (user, query, slug) => {
   return new Promise(async (resolve, reject) => {
     try {
-      let { limit, p, size, color, material, price, sortBy, sortType } = query;
+      let {
+        limit,
+        p,
+        size,
+        color,
+        material,
+        price,
+        sortBy,
+        sortType,
+        exceptId,
+      } = query;
       material = material ? JSON.parse(material) : [];
       color = color ? JSON.parse(color) : [];
       size = size ? JSON.parse(size) : [];
       price = price ? JSON.parse(price) : [];
       const filterWhere = { "$product.category.slug$": slug };
+      if (exceptId) {
+        filterWhere["$product.id$"] = {
+          [Op.not]: exceptId,
+        };
+      }
       if (color.length > 0) {
         filterWhere["$color.value$"] = {
           [Op.in]: color,
@@ -937,6 +984,7 @@ const getByCategorySlug = async (user, query, slug) => {
           ],
         };
       }
+      console.log(filterWhere);
       const filteredProductId = await db.ProductDetail.findAll({
         nest: true,
         include: [
@@ -969,89 +1017,7 @@ const getByCategorySlug = async (user, query, slug) => {
         attributes: {
           exclude: ["category_id"],
         },
-        include: [
-          {
-            model: db.ProductDetail,
-            as: "details",
-            attributes: {
-              exclude: [
-                "product_id",
-                "color_id",
-                "size_id",
-                "createdAt",
-                "updatedAt",
-              ],
-            },
-            include: [
-              {
-                model: db.Color,
-                as: "color",
-                attributes: {
-                  exclude: ["createdAt", "updatedAt"],
-                },
-              },
-              {
-                model: db.Size,
-                as: "size",
-                attributes: {
-                  exclude: ["createdAt", "updatedAt"],
-                },
-              },
-            ],
-          },
-          {
-            model: db.Category,
-            as: "category",
-            required: true,
-            attributes: {
-              exclude: ["group_category_id", "createdAt", "updatedAt"],
-            },
-            include: [
-              {
-                model: db.GroupCategory,
-                as: "group_category",
-                required: true,
-                attributes: {
-                  exclude: ["gender_id", "createdAt", "updatedAt"],
-                },
-                include: [
-                  {
-                    model: db.Gender,
-                    as: "gender",
-                    required: true,
-                    attributes: {
-                      exclude: ["createdAt", "updatedAt"],
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            model: db.Image,
-            as: "images",
-          },
-          {
-            model: db.Discount,
-            as: "discounts",
-            required: false,
-            where: {
-              finish: {
-                [Op.gt]: new Date(),
-              },
-            },
-            limit: 1,
-          },
-          {
-            model: db.ProductUser,
-            as: "product_users",
-            required: false,
-            where: {
-              user_id: user ? user.id : "",
-            },
-            limit: 1,
-          },
-        ],
+        include: defaultProductInclude(user),
         limit: !limit ? 10 : parseInt(limit),
         offset: (!p ? 0 : parseInt(p) - 1) * (!limit ? 10 : parseInt(limit)),
         where: {

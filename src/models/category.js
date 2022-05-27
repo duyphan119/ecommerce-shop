@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       name: DataTypes.STRING,
       code: DataTypes.STRING,
       slug: DataTypes.STRING,
+      icon: DataTypes.STRING,
       group_category_id: DataTypes.INTEGER,
     },
     {

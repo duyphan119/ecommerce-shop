@@ -575,7 +575,7 @@ INSERT INTO `sequelizemeta` (`name`) VALUES
 ('20220505143706-create-material.js'),
 ('20220505145905-create-product.js'),
 ('20220505150213-create-discount.js'),
-('20220505152450-create-gender.js'),
+('20220505152050-create-gender.js'),
 ('20220505152534-create-group-category.js'),
 ('20220505152552-create-category.js'),
 ('20220505225054-create-product-detail.js'),

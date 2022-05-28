@@ -559,7 +559,14 @@ const search = async (user, query) => {
 const getByGenderSlug = async (user, query, slug) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const { limit, p, type } = query;
+      let { limit, p, size, color, material, price, sortBy, sortType, type } =
+        query;
+
+      material = material ? JSON.parse(material) : [];
+      color = color ? JSON.parse(color) : [];
+      size = size ? JSON.parse(size) : [];
+      price = price ? JSON.parse(price) : [];
+
       let products, count;
       if (type === "best-seller") {
         products = await db.OrderItem.findAll({
@@ -698,41 +705,95 @@ const getByGenderSlug = async (user, query, slug) => {
             total_result: count,
           },
         });
-      }
-      products = await db.Product.findAll({
-        order: [["id", "desc"]],
-        nest: true,
-        attributes: {
-          exclude: ["category_id"],
-        },
-        include: defaultProductInclude(user),
-        where: { "$Category.Group_Category.Gender.slug$": slug },
-        limit: !limit ? 10 : parseInt(limit),
-        offset: (!p ? 0 : parseInt(p) - 1) * (!limit ? 10 : parseInt(limit)),
-      });
-      count = await db.Product.count({
-        where: { "$Category.Group_Category.Gender.slug$": slug },
-        include: defaultCategoryInclude(),
-        nest: true,
-      });
-      products = products.map((item) => {
-        const newObj = {
-          ...item.dataValues,
-          colors: formatProductColors(item),
+      } else {
+        const filterWhere = {
+          "$product.category.group_category.gender.slug$": slug,
         };
-        delete newObj.details;
-        delete newObj.images;
-        return newObj;
-      });
-      resolve({
-        status: 200,
-        data: {
-          items: products,
+        if (color.length > 0) {
+          filterWhere["$color.value$"] = {
+            [Op.in]: color,
+          };
+        }
+        if (size.length > 0) {
+          filterWhere["$size.value$"] = {
+            [Op.in]: size,
+          };
+        }
+        if (price.length > 0) {
+          filterWhere["$product.price$"] = {
+            [Op.and]: [
+              {
+                [Op.gte]: price[0],
+              },
+              {
+                [Op.lte]: price[1] ? price[1] : 9999999999,
+              },
+            ],
+          };
+        }
+        const filteredProductId = await db.ProductDetail.findAll({
+          nest: true,
+          include: [
+            {
+              model: db.Color,
+              as: "color",
+            },
+            {
+              model: db.Size,
+              as: "size",
+            },
+            {
+              model: db.Product,
+              as: "product",
+              include: defaultCategoryInclude(false),
+            },
+          ],
+          where: filterWhere,
+          group: ["product.id"],
+        });
+        const listId = filteredProductId.map((item) => item.product.id);
+        products = await db.Product.findAll({
+          order: [[sortBy ? sortBy : "id", sortType ? sortType : "desc"]],
+          where: {
+            id: {
+              [Op.in]: listId,
+            },
+          },
+          nest: true,
+          attributes: {
+            exclude: ["category_id"],
+          },
+          include: defaultProductInclude(user),
           limit: !limit ? 10 : parseInt(limit),
-          total_page: Math.ceil(count / (!limit ? 10 : parseInt(limit))),
-          total_result: count,
-        },
-      });
+          offset: (!p ? 0 : parseInt(p) - 1) * (!limit ? 10 : parseInt(limit)),
+        });
+        count = await db.Product.count({
+          where: {
+            id: {
+              [Op.in]: listId,
+            },
+          },
+          nest: true,
+        });
+        products = products.map((item) => {
+          const newObj = {
+            ...item.dataValues,
+            colors: formatProductColors(item),
+          };
+          delete newObj.details;
+          delete newObj.images;
+          return newObj;
+        });
+        resolve({
+          status: 200,
+          data: {
+            items: products,
+            limit: !limit ? 10 : parseInt(limit),
+            total_page: Math.ceil(count / (!limit ? 10 : parseInt(limit))),
+            total_result: count,
+          },
+        });
+      }
     } catch (error) {
       console.log(error);
       resolve({

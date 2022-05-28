@@ -1,9 +1,12 @@
 const db = require("../models");
 const bcrypt = require("bcryptjs");
-const getAll = async () => {
+const getAll = async (query) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const users = await db.User.findAll({
+      let { limit, p } = query;
+      limit = !limit ? 20 : parseInt(limit);
+      p = !p ? 0 : parseInt(p) - 1;
+      const options = {
         order: [["id", "desc"]],
         attributes: {
           exclude: ["password"],
@@ -15,8 +18,21 @@ const getAll = async () => {
           },
         ],
         nest: true,
+        limit,
+        offset: p * limit,
+      };
+      const users = await db.User.findAll(options);
+      const count = await db.User.count();
+
+      resolve({
+        status: 200,
+        data: {
+          items: users,
+          total_page: Math.ceil(count / limit),
+          total_result: count,
+          limit,
+        },
       });
-      resolve({ status: 200, data: users });
     } catch (error) {
       resolve({ status: 500, data: { error, message: "error get all users" } });
     }
@@ -86,7 +102,14 @@ const create = async (body) => {
 const update = async (body) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const { id, ...others } = body;
+      const { id, password, ...others } = body;
+      if (password) {
+        const hashedPassword = bcrypt.hashSync(
+          password,
+          bcrypt.genSaltSync(10)
+        );
+        others.password = hashedPassword;
+      }
       await db.User.update(others, { where: { id } });
       const existingUser = await getById(id);
       resolve({ status: 200, data: existingUser.data });

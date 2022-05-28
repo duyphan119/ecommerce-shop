@@ -1,42 +1,45 @@
-'use strict';
+"use strict";
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Orders', {
+    await queryInterface.createTable("Orders", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       user_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       total: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+      },
+      full_name: {
+        type: Sequelize.STRING,
       },
       address: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       telephone: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       order_status_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       coupon_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Orders');
-  }
+    await queryInterface.dropTable("Orders");
+  },
 };

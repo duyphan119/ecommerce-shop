@@ -115,12 +115,12 @@ const defaultProductInclude = (user) => {
   ];
 };
 
-const defaultCategoryInclude = () => {
+const defaultCategoryInclude = (required) => {
   return [
     {
       model: db.Category,
       as: "category",
-      required: true,
+      required,
       attributes: {
         exclude: ["group_category_id", "createdAt", "updatedAt"],
       },
@@ -128,7 +128,7 @@ const defaultCategoryInclude = () => {
         {
           model: db.GroupCategory,
           as: "group_category",
-          required: true,
+          required,
           attributes: {
             exclude: ["gender_id", "createdAt", "updatedAt"],
           },
@@ -136,7 +136,7 @@ const defaultCategoryInclude = () => {
             {
               model: db.Gender,
               as: "gender",
-              required: true,
+              required,
               attributes: {
                 exclude: ["createdAt", "updatedAt"],
               },

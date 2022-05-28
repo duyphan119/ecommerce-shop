@@ -2,20 +2,38 @@ const db = require("../models");
 const getAll = async (query) => {
   return new Promise(async (resolve, reject) => {
     try {
-      let { position, page, isShow } = query;
+      let { position, page, isShow, limit, p } = query;
       let banners;
+      let options = {};
       if (position && page) {
-        banners = await db.Banner.findAll({
+        options = {
           where: {
             position,
             page,
             isShow: isShow ? (isShow === "true" ? true : false) : true,
           },
-        });
+          order: [["id", "desc"]],
+        };
+        banners = await db.Banner.findAll(options);
+        resolve({ status: 200, data: banners });
       } else {
-        banners = await db.Banner.findAll();
+        limit = !limit ? 10 : parseInt(limit);
+        p = !p ? 0 : parseInt(p) - 1;
+        options.limit = limit;
+        options.offset = p * limit;
+        options.order = [["id", "desc"]];
+        banners = await db.Banner.findAll(options);
+        let count = await db.Banner.count();
+        resolve({
+          status: 200,
+          data: {
+            items: banners,
+            total_page: Math.ceil(count / limit),
+            total_result: count,
+            limit,
+          },
+        });
       }
-      resolve({ status: 200, data: banners });
     } catch (error) {
       console.log(error);
       resolve({

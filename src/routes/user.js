@@ -2,7 +2,7 @@ const router = require("express").Router();
 const userService = require("../services/userService");
 
 router.get("/", async (req, res) => {
-  const { status, data } = await userService.getAll();
+  const { status, data } = await userService.getAll(req.query);
   res.status(status).json(data);
 });
 router.get("/:user_id", async (req, res) => {

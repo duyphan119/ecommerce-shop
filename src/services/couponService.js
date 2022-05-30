@@ -1,8 +1,28 @@
+const { Op } = require("sequelize");
 const db = require("../models");
-const getAll = async () => {
+const getAll = async (query) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const coupons = await db.Coupon.findAll();
+      let { code, percent } = query;
+      let coupons;
+      let where = {};
+      if (code) {
+        where = {
+          ...where,
+          code,
+          finish: {
+            [Op.gt]: new Date(),
+          },
+        };
+      }
+      if (percent) {
+        where = {
+          ...where,
+          percent,
+        };
+      }
+      coupons = await db.Coupon.findAll({ where });
+      console.log();
       resolve({ status: 200, data: coupons });
     } catch (error) {
       resolve({

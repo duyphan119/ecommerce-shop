@@ -19,11 +19,19 @@ router.post("/", async (req, res) => {
   res.status(status).json(data);
 });
 router.put("/", async (req, res) => {
-  const { status, data } = await productMaterialService.update(req.body);
+  const { status, data } = await productMaterialService.update(
+    req.query,
+    req.body
+  );
+  res.status(status).json(data);
+});
+router.delete("/", async (req, res) => {
+  const { status, data } = await productMaterialService.destroyMany(req.body);
   res.status(status).json(data);
 });
 router.delete("/:product_material_id", async (req, res) => {
   const { status, data } = await productMaterialService.destroy(
+    req.query,
     req.params.product_material_id
   );
   res.status(status).json(data);

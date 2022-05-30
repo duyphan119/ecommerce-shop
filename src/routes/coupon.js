@@ -2,7 +2,7 @@ const router = require("express").Router();
 const couponService = require("../services/couponService");
 
 router.get("/", async (req, res) => {
-  const { status, data } = await couponService.getAll();
+  const { status, data } = await couponService.getAll(req.query);
   res.status(status).json(data);
 });
 router.get("/:coupon_id", async (req, res) => {

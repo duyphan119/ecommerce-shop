@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const db = require("../models");
 const getAll = async () => {
   return new Promise(async (resolve, reject) => {
@@ -70,4 +71,17 @@ const destroy = async (id) => {
     }
   });
 };
-module.exports = { getAll, getById, create, update, destroy };
+const destroyMany = async (body) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await db.Image.destroy({ where: { id: { [Op.in]: body } } });
+      resolve({
+        status: 200,
+        data: { message: "these image is deleted" },
+      });
+    } catch (error) {
+      resolve({ status: 500, data: { error, message: "error delete image" } });
+    }
+  });
+};
+module.exports = { getAll, getById, create, update, destroy, destroyMany };

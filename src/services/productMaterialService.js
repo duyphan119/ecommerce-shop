@@ -32,7 +32,6 @@ const create = async (query, body) => {
   return new Promise(async (resolve, reject) => {
     try {
       const { many } = query;
-      console.log({ many });
       if (many) {
         const createdProductMaterials = await db.ProductMaterial.bulkCreate(
           body
@@ -43,6 +42,7 @@ const create = async (query, body) => {
         resolve({ status: 200, data: createdProductMaterial });
       }
     } catch (error) {
+      console.log(error);
       resolve({
         status: 500,
         data: { error, message: "error create new product material material" },
@@ -50,11 +50,18 @@ const create = async (query, body) => {
     }
   });
 };
-const update = async (body) => {
+const update = async (query, body) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const { id, ...others } = body;
-      await db.ProductMaterial.update({ ...others }, { where: { id } });
+      const { id, materials, ...others } = body;
+      const { many } = query;
+      if (many) {
+        await db.ProductMaterial.bulkCreate(materials, {
+          updateOnDuplicate: ["material_id"],
+        });
+      } else {
+        await db.ProductMaterial.update({ ...others }, { where: { id } });
+      }
       const existingProductMaterial = await getById(id);
       resolve({ status: 200, data: existingProductMaterial.data });
     } catch (error) {
@@ -65,7 +72,7 @@ const update = async (body) => {
     }
   });
 };
-const destroy = async (id) => {
+const destroy = async (query, id) => {
   return new Promise(async (resolve, reject) => {
     try {
       await db.ProductMaterial.destroy({ where: { id } });
@@ -81,4 +88,22 @@ const destroy = async (id) => {
     }
   });
 };
-module.exports = { getAll, getById, create, update, destroy };
+const destroyMany = async (body) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      console.log(body);
+      await db.ProductMaterial.destroy({ where: { id: { [Op.in]: body } } });
+      resolve({
+        status: 200,
+        data: { message: "these product material is deleted" },
+      });
+    } catch (error) {
+      console.log(error);
+      resolve({
+        status: 500,
+        data: { error, message: "error delete product material" },
+      });
+    }
+  });
+};
+module.exports = { getAll, getById, create, update, destroy, destroyMany };

@@ -195,6 +195,19 @@ const getAll = async (user, query) => {
                     },
                     limit: 1,
                   },
+                  {
+                    model: db.ProductMaterial,
+                    as: "materials",
+                    separate: true,
+                    required: false,
+                    include: [
+                      {
+                        model: db.Material,
+                        as: "material",
+                        required: false,
+                      },
+                    ],
+                  },
                 ],
               },
             },
@@ -347,6 +360,16 @@ const getAll = async (user, query) => {
                 user_id: user ? user.id : "",
               },
               limit: 1,
+            },
+            {
+              model: db.ProductMaterial,
+              as: "materials",
+              include: [
+                {
+                  model: db.Material,
+                  as: "material",
+                },
+              ],
             },
           ];
         }
@@ -1045,7 +1068,6 @@ const getByCategorySlug = async (user, query, slug) => {
           ],
         };
       }
-      console.log(filterWhere);
       const filteredProductId = await db.ProductDetail.findAll({
         nest: true,
         include: [
@@ -1217,7 +1239,17 @@ const getBySlug = async (user, slug) => {
         ],
         where: { slug },
       });
-
+      const rate = await db.Comment.findAll({
+        nest: true,
+        where: {
+          product_id: existingProduct.id,
+        },
+        attributes: [
+          [db.sequelize.fn("sum", db.sequelize.col("rate")), "total_rate"],
+          [db.sequelize.fn("count", db.sequelize.col("id")), "count"],
+        ],
+      });
+      existingProduct.dataValues.rate = rate[0];
       existingProduct.dataValues.colors = formatProductColors(existingProduct);
       delete existingProduct.dataValues.details;
       delete existingProduct.dataValues.images;
@@ -1226,6 +1258,7 @@ const getBySlug = async (user, slug) => {
         data: existingProduct,
       });
     } catch (error) {
+      console.log(error);
       resolve({
         status: 500,
         data: { error, message: "error get product by slug" },
@@ -1489,6 +1522,7 @@ const update = async (user, body) => {
       const existingProduct = await getById(user, id);
       resolve({ status: 200, data: existingProduct.data });
     } catch (error) {
+      console.log(error);
       resolve({
         status: 500,
         data: { error, message: "error update product" },

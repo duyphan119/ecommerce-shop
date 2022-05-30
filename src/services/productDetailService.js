@@ -54,14 +54,22 @@ const create = async (query, body) => {
     }
   });
 };
-const update = async (body) => {
+const update = async (query, body) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const { id, ...others } = body;
-      await db.ProductDetail.update({ ...others }, { where: { id } });
+      const { id, details, ...others } = body;
+      const { many } = query;
+      if (many) {
+        await db.ProductDetail.bulkCreate(details, {
+          updateOnDuplicate: ["amount"],
+        });
+      } else {
+        await db.ProductDetail.update({ ...others }, { where: { id } });
+      }
       const existingProductDetail = await getById(id);
       resolve({ status: 200, data: existingProductDetail.data });
     } catch (error) {
+      console.log(error);
       resolve({
         status: 500,
         data: { error, message: "error update product detail" },
@@ -69,7 +77,7 @@ const update = async (body) => {
     }
   });
 };
-const destroy = async (id) => {
+const destroy = async (query, id) => {
   return new Promise(async (resolve, reject) => {
     try {
       await db.ProductDetail.destroy({ where: { id } });

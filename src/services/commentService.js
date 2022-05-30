@@ -59,6 +59,17 @@ const getByProduct = async (query, product_id) => {
             model: db.User,
             as: "user",
           },
+          {
+            model: db.RepliedComment,
+            as: "replied_comments",
+            separate: true,
+            include: [
+              {
+                model: db.User,
+                as: "user",
+              },
+            ],
+          },
         ],
         nest: true,
       };
@@ -68,6 +79,7 @@ const getByProduct = async (query, product_id) => {
       if (p && limit) {
         options.offset = (parseInt(p) - 1) * parseInt(limit);
       }
+      // console.log(existing_comments);
       const existing_comments = await db.Comment.findAll(options);
       const count = await db.Comment.count({
         where: {

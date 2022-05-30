@@ -1,5 +1,6 @@
 const db = require("../models");
 const user = require("../models/user");
+const { Op } = require("sequelize");
 const getAll = async (query) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -93,7 +94,7 @@ const getAll = async (query) => {
         option.limit = parseInt(limit);
       }
       if (p && limit) {
-        option.offset = parseInt(p);
+        option.offset = (parseInt(p) - 1) * parseInt(limit);
       }
       const orders = await db.Order.findAll(option);
       const count = await db.Order.count();
@@ -196,6 +197,13 @@ const getByUser = async (query, user_id) => {
               exclude: ["createdAt", "updatedAt", "password"],
             },
           },
+          {
+            model: db.Coupon,
+            as: "coupon",
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
+          },
         ],
         order: [["id", "desc"]],
       };
@@ -240,29 +248,46 @@ const getById = async (id) => {
 const create = async (body) => {
   return new Promise(async (resolve, reject) => {
     try {
-      let { user_id, cart, address, total, telephone, coupon_id } = body;
+      let {
+        user_id,
+        cart_id,
+        cart,
+        address,
+        total,
+        telephone,
+        coupon_id,
+        full_name,
+      } = body;
       coupon_id = coupon_id ? coupon_id : 1;
-      const createdRole = await db.Order.create({
+      const createdOrder = await db.Order.create({
         user_id,
         address,
         total,
         telephone,
         coupon_id,
         order_status_id: 1,
+        full_name,
       });
+      let items = cart.items.map((item) => ({
+        product_detail_id: item.detail.id,
+        quantity: item.quantity,
+        order_id: createdOrder.id,
+        product_price: item.detail.product.price,
+      }));
       // Xoá hết cart item
-      await db.CartItem.destroy({ where: { cart_id: cart.id } });
+      await db.CartItem.destroy({
+        where: {
+          cart_id,
+          product_detail_id: {
+            [Op.in]: items.map((item) => item.product_detail_id),
+          },
+        },
+      });
       // Thêm order items
-      await db.OrderItem.bulkCreate(
-        cart.items.map((item) => ({
-          product_detail_id: item.detail.id,
-          quantity: item.quantity,
-          order_id: createdRole.id,
-          product_price: item.detail.product.price,
-        }))
-      );
-      resolve({ status: 200, data: createdRole });
+      await db.OrderItem.bulkCreate(items);
+      resolve({ status: 200, data: createdOrder });
     } catch (error) {
+      console.log(error);
       resolve({
         status: 500,
         data: { error, message: "error create new order" },
@@ -287,10 +312,10 @@ const destroy = async (id) => {
       await db.Order.destroy({ where: { id } });
       resolve({
         status: 200,
-        data: { message: "this role is deleted" },
+        data: { message: "this order is deleted" },
       });
     } catch (error) {
-      resolve({ status: 500, data: { error, message: "error delete role" } });
+      resolve({ status: 500, data: { error, message: "error delete order" } });
     }
   });
 };

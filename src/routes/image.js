@@ -17,6 +17,10 @@ router.put("/", async (req, res) => {
   const { status, data } = await imageService.update(req.body);
   res.status(status).json(data);
 });
+router.delete("/", async (req, res) => {
+  const { status, data } = await imageService.destroyMany(req.body);
+  res.status(status).json(data);
+});
 router.delete("/:image_id", async (req, res) => {
   const { status, data } = await imageService.destroy(req.params.image_id);
   res.status(status).json(data);

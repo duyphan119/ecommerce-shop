@@ -1502,8 +1502,7 @@ const create = async (user, body) => {
         ...body,
         slug,
       });
-      const existingProduct = await getById(user, createdProduct.id);
-      resolve({ status: 200, data: existingProduct.data });
+      resolve({ status: 200, data: createdProduct });
     } catch (error) {
       resolve({
         status: 500,
@@ -1519,8 +1518,7 @@ const update = async (user, body) => {
       const { name } = others;
       const slug = toSlug(name);
       await db.Product.update({ ...others, slug }, { where: { id } });
-      const existingProduct = await getById(user, id);
-      resolve({ status: 200, data: existingProduct.data });
+      resolve({ status: 200, data: { message: "this product is updated" } });
     } catch (error) {
       console.log(error);
       resolve({

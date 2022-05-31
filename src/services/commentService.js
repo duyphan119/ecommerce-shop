@@ -1,18 +1,55 @@
 const db = require("../models");
-const getAll = async () => {
+const getAll = async (query) => {
   return new Promise(async (resolve, reject) => {
     try {
+      let { limit, p } = query;
+      limit = !limit ? 10 : parseInt(limit);
+      p = !p ? 0 : parseInt(p) - 1;
       const comments = await db.Comment.findAll({
         include: [
           {
             model: db.User,
             as: "user",
           },
+          {
+            model: db.Product,
+            as: "product",
+            include: [
+              {
+                model: db.Image,
+                as: "images",
+                limit: 1,
+                separate: true,
+              },
+            ],
+          },
+          {
+            model: db.RepliedComment,
+            as: "replied_comments",
+            separate: true,
+            include: [
+              {
+                model: db.User,
+                as: "user",
+              },
+            ],
+          },
         ],
         nest: true,
         order: [["id", "desc"]],
+        limit,
+        offset: p,
       });
-      resolve({ status: 200, data: comments });
+      const count = await db.Comment.count();
+      resolve({
+        status: 200,
+        data: {
+          items: comments,
+          total_page: Math.ceil(count / limit),
+          total_result: count,
+          limit,
+        },
+      });
     } catch (error) {
       resolve({
         status: 500,
@@ -111,6 +148,17 @@ const getById = async (id) => {
           {
             model: db.User,
             as: "user",
+          },
+          {
+            model: db.RepliedComment,
+            as: "replied_comments",
+            separate: true,
+            include: [
+              {
+                model: db.User,
+                as: "user",
+              },
+            ],
           },
         ],
         nest: true,

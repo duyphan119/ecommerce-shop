@@ -2,7 +2,7 @@ const router = require("express").Router();
 const commentService = require("../services/commentService");
 
 router.get("/", async (req, res) => {
-  const { status, data } = await commentService.getAll();
+  const { status, data } = await commentService.getAll(req.query);
   res.status(status).json(data);
 });
 router.get("/product/:product_id", async (req, res) => {

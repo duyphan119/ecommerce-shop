@@ -1,6 +1,7 @@
 const db = require("../models");
 const user = require("../models/user");
 const { Op } = require("sequelize");
+const { defaultOrderInclude } = require("../utils");
 const getAll = async (query) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -123,88 +124,7 @@ const getByUser = async (query, user_id) => {
         attributes: {
           exclude: ["order_status_id"],
         },
-        include: [
-          {
-            model: db.OrderItem,
-            as: "items",
-            attributes: {
-              exclude: [
-                "createdAt",
-                "updatedAt",
-                "order_id",
-                "product_detail_id",
-              ],
-            },
-            include: [
-              {
-                model: db.ProductDetail,
-                as: "detail",
-                attributes: {
-                  exclude: [
-                    "createdAt",
-                    "updatedAt",
-                    "color_id",
-                    "size_id",
-                    "product_id",
-                  ],
-                },
-                include: [
-                  {
-                    model: db.Size,
-                    as: "size",
-                    attributes: {
-                      exclude: ["createdAt, updatedAt"],
-                    },
-                  },
-                  {
-                    model: db.Color,
-                    as: "color",
-                    attributes: {
-                      exclude: ["createdAt, updatedAt"],
-                    },
-                  },
-                  {
-                    model: db.Product,
-                    as: "product",
-                    attributes: {
-                      exclude: ["createdAt, updatedAt"],
-                    },
-                    include: [
-                      {
-                        model: db.Image,
-                        as: "images",
-                        attributes: {
-                          exclude: ["createdAt, updatedAt"],
-                        },
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            model: db.OrderStatus,
-            as: "status",
-            attributes: {
-              exclude: ["createdAt", "updatedAt"],
-            },
-          },
-          {
-            model: db.User,
-            as: "user",
-            attributes: {
-              exclude: ["createdAt", "updatedAt", "password"],
-            },
-          },
-          {
-            model: db.Coupon,
-            as: "coupon",
-            attributes: {
-              exclude: ["createdAt", "updatedAt"],
-            },
-          },
-        ],
+        include: defaultOrderInclude(),
         order: [["id", "desc"]],
       };
       const count = await db.Order.count({ where: { user_id } });
@@ -235,7 +155,11 @@ const getByUser = async (query, user_id) => {
 const getById = async (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const existingOrder = await db.Order.findOne({ where: { id } });
+      const existingOrder = await db.Order.findOne({
+        where: { id },
+        nest: true,
+        include: defaultOrderInclude(),
+      });
       resolve({ status: 200, data: existingOrder });
     } catch (error) {
       resolve({
@@ -300,7 +224,8 @@ const update = async (body) => {
     try {
       const { id, ...others } = body;
       await db.Order.update(others, { where: { id } });
-      resolve({ status: 200, data: "Updated" });
+      const foundData = await getById(id);
+      resolve({ status: 200, data: foundData.data });
     } catch (error) {
       resolve({ status: 500, data: { error, message: "error update order" } });
     }

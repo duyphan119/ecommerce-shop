@@ -166,9 +166,99 @@ const defaultOrderItemInclude = (user) => {
   ];
 };
 
+const defaultNotificationInclude = () => {
+  return [
+    {
+      model: db.User,
+      as: "sender",
+    },
+  ];
+};
+const defaultOrderInclude = () => {
+  return [
+    {
+      model: db.OrderItem,
+      as: "items",
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "order_id", "product_detail_id"],
+      },
+      include: [
+        {
+          model: db.ProductDetail,
+          as: "detail",
+          attributes: {
+            exclude: [
+              "createdAt",
+              "updatedAt",
+              "color_id",
+              "size_id",
+              "product_id",
+            ],
+          },
+          include: [
+            {
+              model: db.Size,
+              as: "size",
+              attributes: {
+                exclude: ["createdAt, updatedAt"],
+              },
+            },
+            {
+              model: db.Color,
+              as: "color",
+              attributes: {
+                exclude: ["createdAt, updatedAt"],
+              },
+            },
+            {
+              model: db.Product,
+              as: "product",
+              attributes: {
+                exclude: ["createdAt, updatedAt"],
+              },
+              include: [
+                {
+                  model: db.Image,
+                  as: "images",
+                  attributes: {
+                    exclude: ["createdAt, updatedAt"],
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      model: db.OrderStatus,
+      as: "status",
+      attributes: {
+        exclude: ["createdAt", "updatedAt"],
+      },
+    },
+    {
+      model: db.User,
+      as: "user",
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "password"],
+      },
+    },
+    {
+      model: db.Coupon,
+      as: "coupon",
+      attributes: {
+        exclude: ["createdAt", "updatedAt"],
+      },
+    },
+  ];
+};
+
 module.exports = {
   toSlug,
   defaultProductInclude,
   defaultCategoryInclude,
   defaultOrderItemInclude,
+  defaultNotificationInclude,
+  defaultOrderInclude,
 };

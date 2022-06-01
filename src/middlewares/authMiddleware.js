@@ -29,8 +29,8 @@ const verifyToken = (req, res, next) => {
 const verifyTokenAndUser = (req, res, next) => {
   verifyToken(req, res, () => {
     if (
-      req.params.user_id === req.user.id ||
-      req.body.user_id === req.user.id
+      req.params.user_id === "" + req.user.id ||
+      req.body.user_id === "" + req.user.id
     ) {
       next();
     } else {

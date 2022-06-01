@@ -86,7 +86,7 @@ const login = async (body, res) => {
       });
       existingUser.dataValues.access_token = access_token;
       delete existingUser.dataValues.password;
-      console.log(existingUser);
+
       resolve({ status: 200, data: existingUser });
     } catch (error) {
       console.log(error);

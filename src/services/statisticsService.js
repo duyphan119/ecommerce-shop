@@ -18,10 +18,17 @@ const getRevenue = async (query) => {
             [db.sequelize.fn("sum", db.sequelize.col("total")), "total"],
             [db.sequelize.fn("hour", db.sequelize.col("createdAt")), "hour"],
           ],
-          where: db.sequelize.where(
-            db.sequelize.fn("day", db.sequelize.col("createdAt")),
-            new Date().getDate()
-          ),
+          where: [
+            db.sequelize.where(
+              db.sequelize.fn("day", db.sequelize.col("createdAt")),
+              new Date().getDate()
+            ),
+            {
+              order_status_id: {
+                [Op.not]: 1,
+              },
+            },
+          ],
         });
       } else if (type === "daysInMonth") {
         revenues = await db.Order.findAll({
@@ -39,6 +46,11 @@ const getRevenue = async (query) => {
               db.sequelize.fn("year", db.sequelize.col("createdAt")),
               new Date().getFullYear()
             ),
+            {
+              order_status_id: {
+                [Op.not]: 1,
+              },
+            },
           ],
         });
       } else if (type === "sumCurrentMonth") {
@@ -50,6 +62,9 @@ const getRevenue = async (query) => {
             [db.sequelize.fn("month", db.sequelize.col("createdAt")), "month"],
           ],
           where: {
+            order_status_id: {
+              [Op.not]: 1,
+            },
             [Op.or]: [
               [
                 db.sequelize.where(

@@ -28,6 +28,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "user_id",
         as: "product_users",
       });
+      User.hasMany(models.Notification, {
+        foreignKey: "sender_id",
+        as: "notifications",
+      });
     }
   }
   User.init(
@@ -35,6 +39,7 @@ module.exports = (sequelize, DataTypes) => {
       full_name: DataTypes.STRING,
       email: DataTypes.STRING,
       password: DataTypes.STRING,
+      avatar: DataTypes.STRING,
       role_id: DataTypes.INTEGER,
     },
     {

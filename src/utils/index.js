@@ -34,6 +34,7 @@ const defaultProductInclude = (user) => {
     {
       model: db.ProductDetail,
       as: "details",
+      separate: true,
       attributes: {
         exclude: [
           "product_id",
@@ -91,6 +92,7 @@ const defaultProductInclude = (user) => {
     {
       model: db.Image,
       as: "images",
+      separate: true,
     },
     {
       model: db.Discount,
@@ -111,6 +113,19 @@ const defaultProductInclude = (user) => {
         user_id: user ? user.id : "",
       },
       limit: 1,
+    },
+    {
+      model: db.ProductMaterial,
+      as: "materials",
+      separate: true,
+      required: false,
+      include: [
+        {
+          model: db.Material,
+          as: "material",
+          required: false,
+        },
+      ],
     },
   ];
 };
@@ -254,6 +269,35 @@ const defaultOrderInclude = () => {
   ];
 };
 
+const defaultProductDetailInclude = () => {
+  return [
+    {
+      model: db.Color,
+      as: "color",
+    },
+    {
+      model: db.Size,
+      as: "size",
+    },
+    {
+      model: db.Product,
+      as: "product",
+      include: [
+        {
+          model: db.Category,
+          as: "category",
+          include: [
+            {
+              model: db.GroupCategory,
+              as: "group_category",
+            },
+          ],
+        },
+      ],
+    },
+  ];
+};
+
 module.exports = {
   toSlug,
   defaultProductInclude,
@@ -261,4 +305,5 @@ module.exports = {
   defaultOrderItemInclude,
   defaultNotificationInclude,
   defaultOrderInclude,
+  defaultProductDetailInclude,
 };

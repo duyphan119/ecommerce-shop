@@ -2,7 +2,9 @@ const db = require("../models");
 const getAll = async () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const colors = await db.Color.findAll();
+      const colors = await db.Color.findAll({
+        order: [["value", "asc"]],
+      });
       resolve({ status: 200, data: colors });
     } catch (error) {
       resolve({

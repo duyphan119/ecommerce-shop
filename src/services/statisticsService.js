@@ -89,6 +89,44 @@ const getRevenue = async (query) => {
             ],
           },
         });
+      } else if (type === "years") {
+        revenues = await db.Order.findAll({
+          group: [db.sequelize.fn("year", db.sequelize.col("createdAt"))],
+          attributes: [
+            [db.sequelize.fn("sum", db.sequelize.col("total")), "total"],
+            [db.sequelize.fn("year", db.sequelize.col("createdAt")), "year"],
+          ],
+          where: [
+            {
+              order_status_id: {
+                [Op.not]: 1,
+              },
+            },
+            db.sequelize.where(
+              db.sequelize.fn("year", db.sequelize.col("createdAt")),
+              year
+            ),
+          ],
+        });
+      } else if (type === "monthsInYear") {
+        revenues = await db.Order.findAll({
+          group: [db.sequelize.fn("month", db.sequelize.col("createdAt"))],
+          attributes: [
+            [db.sequelize.fn("sum", db.sequelize.col("total")), "total"],
+            [db.sequelize.fn("month", db.sequelize.col("createdAt")), "month"],
+          ],
+          where: [
+            {
+              order_status_id: {
+                [Op.not]: 1,
+              },
+            },
+            db.sequelize.where(
+              db.sequelize.fn("year", db.sequelize.col("createdAt")),
+              year
+            ),
+          ],
+        });
       }
       resolve({ status: 200, data: revenues });
     } catch (error) {
@@ -251,8 +289,60 @@ const getUser = async (query) => {
       }
     } catch (error) {
       console.log(error);
-      resolve({ status: 500, data: { error, message: "get revenue fail" } });
+      resolve({ status: 500, data: { error, message: "get comment fail" } });
     }
   });
 };
-module.exports = { getRevenue, getUser, getOrder, getComment };
+const getProduct = async (query) => {
+  return new Promise(async (resolve, reject) => {
+    let dt = new Date();
+    try {
+      let { type, month, year } = query;
+      month = month ? parseInt(month) : dt.getMonth() + 1;
+      let lastMonth = month === 1 ? 12 : month - 1;
+      year = year ? parseInt(year) : dt.getFullYear();
+      let lastYear = lastMonth === 12 ? year - 1 : year;
+      let count;
+      if (type === "countCurrentMonth") {
+        count = await db.Product.findAll({
+          group: [db.sequelize.fn("month", db.sequelize.col("createdAt"))],
+          attributes: [
+            [db.sequelize.fn("count", db.sequelize.col("id")), "count"],
+            [db.sequelize.fn("year", db.sequelize.col("createdAt")), "year"],
+            [db.sequelize.fn("month", db.sequelize.col("createdAt")), "month"],
+          ],
+          where: {
+            [Op.or]: [
+              [
+                db.sequelize.where(
+                  db.sequelize.fn("month", db.sequelize.col("createdAt")),
+                  month
+                ),
+                db.sequelize.where(
+                  db.sequelize.fn("year", db.sequelize.col("createdAt")),
+                  year
+                ),
+              ],
+              [
+                db.sequelize.where(
+                  db.sequelize.fn("month", db.sequelize.col("createdAt")),
+                  lastMonth
+                ),
+                db.sequelize.where(
+                  db.sequelize.fn("year", db.sequelize.col("createdAt")),
+                  lastYear
+                ),
+              ],
+            ],
+          },
+        });
+        resolve({ status: 200, data: count });
+      }
+      resolve({ status: 200, data: { count } });
+    } catch (error) {
+      console.log(error);
+      resolve({ status: 500, data: { error, message: "get product fail" } });
+    }
+  });
+};
+module.exports = { getRevenue, getUser, getOrder, getComment, getProduct };

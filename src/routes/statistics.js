@@ -1,21 +1,10 @@
 const router = require("express").Router();
-const statisticsService = require("../services/statisticsService");
+const statisticsController = require("../controllers/statisticsController");
 
-router.get("/revenue", async (req, res) => {
-  const { status, data } = await statisticsService.getRevenue(req.query);
-  res.status(status).json(data);
-});
-router.get("/user", async (req, res) => {
-  const { status, data } = await statisticsService.getUser(req.query);
-  res.status(status).json(data);
-});
-router.get("/order", async (req, res) => {
-  const { status, data } = await statisticsService.getOrder(req.query);
-  res.status(status).json(data);
-});
-router.get("/comment", async (req, res) => {
-  const { status, data } = await statisticsService.getComment(req.query);
-  res.status(status).json(data);
-});
+router.get("/revenue", statisticsController.getRevenue);
+router.get("/user", statisticsController.getUser);
+router.get("/order", statisticsController.getOrder);
+router.get("/comment", statisticsController.getComment);
+router.get("/product", statisticsController.getProduct);
 
 module.exports = router;

@@ -41,7 +41,7 @@ const verifyTokenAndUser = (req, res, next) => {
 
 const verifyTokenUserAndAdmin = (req, res, next) => {
   verifyToken(req, res, () => {
-    if (req.params.user_id === req.user.id && req.user.is_admin) {
+    if (req.params.user_id === req.user.id && req.user.role === "admin") {
       next();
     } else {
       return res.status(401).json("Not authorization");
@@ -50,7 +50,7 @@ const verifyTokenUserAndAdmin = (req, res, next) => {
 };
 const verifyAdmin = (req, res, next) => {
   verifyToken(req, res, () => {
-    if (req.user.is_admin) {
+    if (req.user.role === "admin") {
       next();
     } else {
       return res.status(401).json("Not authorization");

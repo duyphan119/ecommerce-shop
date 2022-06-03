@@ -189,96 +189,7 @@ const getAll = async (user, query) => {
           option.offset = parseInt(limit) * (parseInt(p) - 1);
         }
         if (include) {
-          option.include = [
-            {
-              model: db.ProductDetail,
-              as: "details",
-              attributes: {
-                exclude: [
-                  "product_id",
-                  "color_id",
-                  "size_id",
-                  "createdAt",
-                  "updatedAt",
-                ],
-              },
-              include: [
-                {
-                  model: db.Color,
-                  as: "color",
-                  attributes: {
-                    exclude: ["createdAt", "updatedAt"],
-                  },
-                },
-                {
-                  model: db.Size,
-                  as: "size",
-                  attributes: {
-                    exclude: ["createdAt", "updatedAt"],
-                  },
-                },
-              ],
-            },
-            {
-              model: db.Category,
-              as: "category",
-              attributes: {
-                exclude: ["group_category_id", "createdAt", "updatedAt"],
-              },
-              include: [
-                {
-                  model: db.GroupCategory,
-                  as: "group_category",
-                  attributes: {
-                    exclude: ["gender_id", "createdAt", "updatedAt"],
-                  },
-                  include: [
-                    {
-                      model: db.Gender,
-                      as: "gender",
-                      attributes: {
-                        exclude: ["createdAt", "updatedAt"],
-                      },
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              model: db.Image,
-              as: "images",
-            },
-            {
-              model: db.Discount,
-              as: "discounts",
-              required: false,
-              where: {
-                finish: {
-                  [Op.gt]: new Date(),
-                },
-              },
-              limit: 1,
-            },
-            {
-              model: db.ProductUser,
-              as: "product_users",
-              required: false,
-              where: {
-                user_id: user ? user.id : "",
-              },
-              limit: 1,
-            },
-            {
-              model: db.ProductMaterial,
-              as: "materials",
-              include: [
-                {
-                  model: db.Material,
-                  as: "material",
-                },
-              ],
-            },
-          ];
+          option.include = defaultProductInclude(user);
         }
         products = await db.Product.findAll(option);
         if (include) {
@@ -338,27 +249,87 @@ const search = async (user, query) => {
           data: [],
         });
       }
-      let option = {
+      const listDetail = await db.ProductDetail.findAll({
+        nest: true,
         where: {
           [Op.or]: [
             {
-              name: {
+              "$product.name$": {
                 [Op.substring]: q,
               },
             },
             {
-              slug: {
+              "$product.slug$": {
                 [Op.substring]: q,
               },
             },
             {
-              description: {
+              "$product.slug$": {
                 [Op.substring]: q,
               },
+            },
+            {
+              "$product.description$": {
+                [Op.substring]: q,
+              },
+            },
+            {
+              "$color.value$": {
+                [Op.substring]: q,
+              },
+            },
+            {
+              "$size.value$": {
+                [Op.substring]: q,
+              },
+            },
+            {
+              sku: {
+                [Op.substring]: q,
+              },
+            },
+            {
+              "$product.category.name$": {
+                [Op.substring]: q,
+              },
+            },
+            {
+              "$product.category.group_category.name$": {
+                [Op.substring]: q,
+              },
+            },
+            {
+              "$product.category.group_category.gender.name$": {
+                [Op.substring]: q,
+              },
+            },
+            {
+              "$product.category.slug$": {
+                [Op.substring]: q,
+              },
+            },
+            {
+              "$product.category.group_category.slug$": {
+                [Op.substring]: q,
+              },
+            },
+            {
+              "$product.price$": q,
             },
           ],
         },
+        include: defaultProductDetailInclude(),
+        group: ["product.id"],
+      });
+      const listId = listDetail.map((item) => item.product.id);
+      let option = {
+        where: {
+          id: {
+            [Op.in]: listId,
+          },
+        },
         order: [["id", "desc"]],
+        include: defaultProductInclude(user),
       };
       if (limit) {
         option.limit = parseInt(limit);
@@ -429,88 +400,7 @@ const getByGenderSlug = async (user, query, slug) => {
               include: {
                 model: db.Product,
                 as: "product",
-                include: [
-                  {
-                    model: db.ProductDetail,
-                    as: "details",
-                    separate: true,
-                    attributes: {
-                      exclude: [
-                        "product_id",
-                        "color_id",
-                        "size_id",
-                        "createdAt",
-                        "updatedAt",
-                      ],
-                    },
-                    include: [
-                      {
-                        model: db.Color,
-                        as: "color",
-                        attributes: {
-                          exclude: ["createdAt", "updatedAt"],
-                        },
-                      },
-                      {
-                        model: db.Size,
-                        as: "size",
-                        attributes: {
-                          exclude: ["createdAt", "updatedAt"],
-                        },
-                      },
-                    ],
-                  },
-                  {
-                    model: db.Category,
-                    as: "category",
-                    attributes: {
-                      exclude: ["group_category_id", "createdAt", "updatedAt"],
-                    },
-                    include: [
-                      {
-                        model: db.GroupCategory,
-                        as: "group_category",
-                        attributes: {
-                          exclude: ["gender_id", "createdAt", "updatedAt"],
-                        },
-                        include: [
-                          {
-                            model: db.Gender,
-                            as: "gender",
-                            attributes: {
-                              exclude: ["createdAt", "updatedAt"],
-                            },
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                  {
-                    model: db.Image,
-                    as: "images",
-                    separate: true,
-                  },
-                  {
-                    model: db.Discount,
-                    as: "discounts",
-                    required: false,
-                    where: {
-                      finish: {
-                        [Op.gt]: new Date(),
-                      },
-                    },
-                    limit: 1,
-                  },
-                  {
-                    model: db.ProductUser,
-                    as: "product_users",
-                    required: false,
-                    where: {
-                      user_id: user ? user.id : "",
-                    },
-                    limit: 1,
-                  },
-                ],
+                include: defaultProductInclude(user),
               },
             },
             {

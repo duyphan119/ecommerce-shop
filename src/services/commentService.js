@@ -72,6 +72,17 @@ const getByUserProduct = async (user_id, product_id) => {
             model: db.User,
             as: "user",
           },
+          {
+            model: db.RepliedComment,
+            as: "replied_comments",
+            separate: true,
+            include: [
+              {
+                model: db.User,
+                as: "user",
+              },
+            ],
+          },
         ],
       });
       resolve({ status: 200, data: existing_comment });

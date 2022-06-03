@@ -25,6 +25,7 @@ const repliedComment = require("./repliedComment");
 const productUser = require("./productUser");
 const banner = require("./banner");
 const notification = require("./notification");
+const discountCategory = require("./discountCategory");
 const configRoute = (app) => {
   app.use("/api/auth", auth);
   app.use("/api/user", user);
@@ -53,5 +54,6 @@ const configRoute = (app) => {
   app.use("/api/product-user", productUser);
   app.use("/api/banner", banner);
   app.use("/api/notification", notification);
+  app.use("/api/discount-category", discountCategory);
 };
 module.exports = configRoute;

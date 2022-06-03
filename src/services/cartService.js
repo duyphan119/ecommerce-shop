@@ -19,6 +19,7 @@ const getByUser = async (user_id) => {
           {
             model: db.CartItem,
             as: "items",
+            separate: true,
             attributes: {
               exclude: ["cart_id", "product_detail_id"],
             },
@@ -57,6 +58,31 @@ const getByUser = async (user_id) => {
                           },
                         },
                         limit: 1,
+                      },
+                      {
+                        model: db.Category,
+                        as: "category",
+                        required: true,
+                        attributes: {
+                          exclude: [
+                            "group_category_id",
+                            "createdAt",
+                            "updatedAt",
+                          ],
+                        },
+                        include: [
+                          {
+                            model: db.DiscountCategory,
+                            as: "discounts",
+                            required: false,
+                            where: {
+                              end: {
+                                [Op.gt]: new Date(),
+                              },
+                            },
+                            limit: 1,
+                          },
+                        ],
                       },
                     ],
                   },

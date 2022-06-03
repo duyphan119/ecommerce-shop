@@ -87,6 +87,17 @@ const defaultProductInclude = (user) => {
             },
           ],
         },
+        {
+          model: db.DiscountCategory,
+          as: "discounts",
+          required: false,
+          where: {
+            end: {
+              [Op.gt]: new Date(),
+            },
+          },
+          limit: 1,
+        },
       ],
     },
     {
@@ -282,6 +293,7 @@ const defaultProductDetailInclude = () => {
     {
       model: db.Product,
       as: "product",
+      required: false,
       include: [
         {
           model: db.Category,
@@ -290,6 +302,23 @@ const defaultProductDetailInclude = () => {
             {
               model: db.GroupCategory,
               as: "group_category",
+              include: [
+                {
+                  model: db.Gender,
+                  as: "gender",
+                },
+              ],
+            },
+            {
+              model: db.DiscountCategory,
+              as: "discounts",
+              required: false,
+              where: {
+                end: {
+                  [Op.gt]: new Date(),
+                },
+              },
+              limit: 1,
             },
           ],
         },

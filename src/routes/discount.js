@@ -1,29 +1,15 @@
 const router = require("express").Router();
-const discountService = require("../services/discountService");
 
-router.get("/", async (req, res) => {
-  const { status, data } = await discountService.getAll();
-  res.status(status).json(data);
-});
-router.get("/:discount_id", async (req, res) => {
-  const { status, data } = await discountService.getById(
-    req.params.discount_id
-  );
-  res.status(status).json(data);
-});
-router.post("/", async (req, res) => {
-  const { status, data } = await discountService.create(req.body);
-  res.status(status).json(data);
-});
-router.put("/", async (req, res) => {
-  const { status, data } = await discountService.update(req.body);
-  res.status(status).json(data);
-});
-router.delete("/:discount_id", async (req, res) => {
-  const { status, data } = await discountService.destroy(
-    req.params.discount_id
-  );
-  res.status(status).json(data);
-});
+const discountController = require("../controllers/discountController");
+const { verifyAdmin } = require("../middlewares/authMiddleware");
+
+router.get("/", discountController.getAll);
+router.get("/:discount_id", discountController.getById);
+
+router.post("/", verifyAdmin, discountController.create);
+
+router.put("/", verifyAdmin, discountController.update);
+
+router.delete("/:discount_id", verifyAdmin, discountController.destroy);
 
 module.exports = router;

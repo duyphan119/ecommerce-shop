@@ -1,5 +1,6 @@
 const { Op } = require("sequelize");
 const db = require("../models");
+const { defaultCartItemInclude } = require("../utils");
 const productDetailService = require("./productDetailService");
 const getAll = async () => {
   return new Promise(async (resolve, reject) => {
@@ -19,61 +20,7 @@ const getById = async (id) => {
     try {
       const existingCartItem = await db.CartItem.findOne({
         where: { id },
-        include: [
-          {
-            model: db.ProductDetail,
-            as: "detail",
-            attributes: {
-              exclude: [
-                "product_id",
-                "color_id",
-                "size_id",
-                "createdAt",
-                "updatedAt",
-              ],
-            },
-            include: [
-              {
-                model: db.Product,
-                as: "product",
-                attributes: {
-                  exclude: ["createdAt", "updatedAt"],
-                },
-                include: [
-                  {
-                    model: db.Image,
-                    as: "images",
-                  },
-                  {
-                    model: db.Discount,
-                    as: "discounts",
-                    required: false,
-                    where: {
-                      finish: {
-                        [Op.gt]: new Date(),
-                      },
-                    },
-                    limit: 1,
-                  },
-                ],
-              },
-              {
-                model: db.Color,
-                as: "color",
-                attributes: {
-                  exclude: ["createdAt", "updatedAt"],
-                },
-              },
-              {
-                model: db.Size,
-                as: "size",
-                attributes: {
-                  exclude: ["createdAt", "updatedAt"],
-                },
-              },
-            ],
-          },
-        ],
+        include: defaultCartItemInclude(),
       });
       resolve({ status: 200, data: existingCartItem });
     } catch (error) {
@@ -120,61 +67,7 @@ const create = async (body) => {
               cart_id,
               product_detail_id,
             },
-            include: [
-              {
-                model: db.ProductDetail,
-                as: "detail",
-                attributes: {
-                  exclude: [
-                    "product_id",
-                    "color_id",
-                    "size_id",
-                    "createdAt",
-                    "updatedAt",
-                  ],
-                },
-                include: [
-                  {
-                    model: db.Product,
-                    as: "product",
-                    attributes: {
-                      exclude: ["createdAt", "updatedAt"],
-                    },
-                    include: [
-                      {
-                        model: db.Image,
-                        as: "images",
-                      },
-                      {
-                        model: db.Discount,
-                        as: "discounts",
-                        required: false,
-                        where: {
-                          finish: {
-                            [Op.gt]: new Date(),
-                          },
-                        },
-                        limit: 1,
-                      },
-                    ],
-                  },
-                  {
-                    model: db.Color,
-                    as: "color",
-                    attributes: {
-                      exclude: ["createdAt", "updatedAt"],
-                    },
-                  },
-                  {
-                    model: db.Size,
-                    as: "size",
-                    attributes: {
-                      exclude: ["createdAt", "updatedAt"],
-                    },
-                  },
-                ],
-              },
-            ],
+            include: defaultCartItemInclude(),
           });
           resolve({ status: 200, data: existingCartItem });
         } else {
@@ -192,61 +85,7 @@ const create = async (body) => {
               cart_id: createdCartItem.cart_id,
               product_detail_id: createdCartItem.product_detail_id,
             },
-            include: [
-              {
-                model: db.ProductDetail,
-                as: "detail",
-                attributes: {
-                  exclude: [
-                    "product_id",
-                    "color_id",
-                    "size_id",
-                    "createdAt",
-                    "updatedAt",
-                  ],
-                },
-                include: [
-                  {
-                    model: db.Product,
-                    as: "product",
-                    attributes: {
-                      exclude: ["createdAt", "updatedAt"],
-                    },
-                    include: [
-                      {
-                        model: db.Image,
-                        as: "images",
-                      },
-                      {
-                        model: db.Discount,
-                        as: "discounts",
-                        required: false,
-                        where: {
-                          finish: {
-                            [Op.gt]: new Date(),
-                          },
-                        },
-                        limit: 1,
-                      },
-                    ],
-                  },
-                  {
-                    model: db.Color,
-                    as: "color",
-                    attributes: {
-                      exclude: ["createdAt", "updatedAt"],
-                    },
-                  },
-                  {
-                    model: db.Size,
-                    as: "size",
-                    attributes: {
-                      exclude: ["createdAt", "updatedAt"],
-                    },
-                  },
-                ],
-              },
-            ],
+            include: defaultCartItemInclude(),
           });
           resolve({ status: 200, data: existingCartItem });
         } else {

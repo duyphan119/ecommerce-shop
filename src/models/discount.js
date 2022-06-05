@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
   Discount.init(
     {
       finish: DataTypes.DATE,
+      start: DataTypes.DATE,
       product_id: DataTypes.INTEGER,
       new_price: DataTypes.INTEGER,
     },

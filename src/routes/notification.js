@@ -1,32 +1,15 @@
-const router = require("express").Router();
-const notificationService = require("../services/notificationService");
+const notificationController = require("../controllers/notificationController");
+const { verifyToken } = require("../middlewares/authMiddleware");
 
-router.get("/", async (req, res) => {
-  const { status, data } = await notificationService.getAll(req.query);
-  res.status(status).json(data);
-});
-router.get("/:notification_id", async (req, res) => {
-  const { status, data } = await notificationService.getById(
-    req.params.notification_id
-  );
-  res.status(status).json(data);
-});
-router.post("/", async (req, res) => {
-  const { status, data } = await notificationService.create(req.body);
-  res.status(status).json(data);
-});
-router.put("/", async (req, res) => {
-  const { status, data } = await notificationService.update(
-    req.query,
-    req.body
-  );
-  res.status(status).json(data);
-});
-router.delete("/:notification_id", async (req, res) => {
-  const { status, data } = await notificationService.destroy(
-    req.params.notification_id
-  );
-  res.status(status).json(data);
-});
+const router = require("express").Router();
+
+router.get("/", notificationController.getAll);
+router.get("/:notification_id", notificationController.getById);
+
+router.post("/", verifyToken, notificationController.create);
+
+router.put("/", verifyToken, notificationController.update);
+
+router.delete("/:notification_id", verifyToken, notificationController.destroy);
 
 module.exports = router;

@@ -1,25 +1,15 @@
 const router = require("express").Router();
-const sizeService = require("../services/sizeService");
 
-router.get("/", async (req, res) => {
-  const { status, data } = await sizeService.getAll();
-  res.status(status).json(data);
-});
-router.get("/:size_id", async (req, res) => {
-  const { status, data } = await sizeService.getById(req.params.size_id);
-  res.status(status).json(data);
-});
-router.post("/", async (req, res) => {
-  const { status, data } = await sizeService.create(req.body);
-  res.status(status).json(data);
-});
-router.put("/", async (req, res) => {
-  const { status, data } = await sizeService.update(req.body);
-  res.status(status).json(data);
-});
-router.delete("/:size_id", async (req, res) => {
-  const { status, data } = await sizeService.destroy(req.params.size_id);
-  res.status(status).json(data);
-});
+const sizeController = require("../controllers/sizeController");
+const { verifyAdmin } = require("../middlewares/authMiddleware");
+
+router.get("/", sizeController.getAll);
+router.get("/:size_id", sizeController.getById);
+
+router.post("/", verifyAdmin, sizeController.create);
+
+router.put("/", verifyAdmin, sizeController.update);
+
+router.delete("/:size_id", verifyAdmin, sizeController.destroy);
 
 module.exports = router;

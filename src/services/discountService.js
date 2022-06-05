@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const db = require("../models");
 const getAll = async () => {
   return new Promise(async (resolve, reject) => {
@@ -25,12 +26,19 @@ const getById = async (id) => {
     }
   });
 };
-const create = async (body) => {
+const create = async (query, body) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const createdDiscount = await db.Discount.create(body);
-      existingDiscount = await getById(createdDiscount.id);
-      resolve({ status: 200, data: existingDiscount.data });
+      const { many } = query;
+      if (many) {
+        const createdDiscounts = await db.Discount.bulkCreate(body, {
+          updateOnDuplicate: ["finish", "new_price"],
+        });
+        resolve({ status: 200, data: createdDiscounts });
+      } else {
+        const createdDiscount = await db.Discount.create(body);
+        resolve({ status: 200, data: createdDiscount });
+      }
     } catch (error) {
       resolve({
         status: 500,
@@ -39,13 +47,20 @@ const create = async (body) => {
     }
   });
 };
-const update = async (body) => {
+const update = async (query, body) => {
   return new Promise(async (resolve, reject) => {
     try {
       const { id, ...others } = body;
-      await db.Discount.update(others, { where: { id } });
-      const existingDiscount = await getById(id);
-      resolve({ status: 200, data: existingDiscount.data });
+      const { many } = query;
+      if (many) {
+        const updatedDiscounts = await db.Discount.bulkCreate(body, {
+          updateOnDuplicate: ["finish", "new_price"],
+        });
+        resolve({ status: 200, data: updatedDiscounts });
+      } else {
+        await db.Discount.update(others, { where: { id } });
+        resolve({ status: 200, data: "Updated" });
+      }
     } catch (error) {
       resolve({
         status: 500,
@@ -70,4 +85,22 @@ const destroy = async (id) => {
     }
   });
 };
-module.exports = { getAll, getById, create, update, destroy };
+
+const destroyMany = async (body) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      console.log(body);
+      await db.Discount.destroy({ where: { id: { [Op.in]: body } } });
+      resolve({
+        status: 200,
+        data: { message: "this discount is deleted" },
+      });
+    } catch (error) {
+      resolve({
+        status: 500,
+        data: { error, message: "error delete discount" },
+      });
+    }
+  });
+};
+module.exports = { getAll, getById, create, update, destroy, destroyMany };

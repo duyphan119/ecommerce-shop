@@ -13,9 +13,8 @@ module.exports = (sequelize, DataTypes) => {
   Coupon.init(
     {
       name: DataTypes.STRING,
-      value: DataTypes.INTEGER,
       percent: DataTypes.FLOAT,
-      description: DataTypes.TEXT,
+      start: DataTypes.DATE,
       finish: DataTypes.DATE,
       code: DataTypes.STRING,
     },

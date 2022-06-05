@@ -29,7 +29,7 @@ const toSlug = (str) => {
   return str;
 };
 
-const defaultProductInclude = (user) => {
+const defaultProductInclude = (user, allDiscounts = false) => {
   return [
     {
       model: db.ProductDetail,
@@ -109,12 +109,14 @@ const defaultProductInclude = (user) => {
       model: db.Discount,
       as: "discounts",
       required: false,
-      where: {
-        finish: {
-          [Op.gt]: new Date(),
-        },
-      },
-      limit: 1,
+      separate: true,
+      where: allDiscounts
+        ? {}
+        : {
+            finish: {
+              [Op.gte]: new Date().toDateString(),
+            },
+          },
     },
     {
       model: db.ProductUser,
@@ -135,6 +137,88 @@ const defaultProductInclude = (user) => {
           model: db.Material,
           as: "material",
           required: false,
+        },
+      ],
+    },
+  ];
+};
+
+const defaultCartItemInclude = () => {
+  return [
+    {
+      model: db.ProductDetail,
+      as: "detail",
+      attributes: {
+        exclude: [
+          "product_id",
+          "color_id",
+          "size_id",
+          "createdAt",
+          "updatedAt",
+        ],
+      },
+      include: [
+        {
+          model: db.Product,
+          as: "product",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+          include: [
+            {
+              model: db.Image,
+              as: "images",
+              separate: true,
+            },
+            {
+              model: db.Discount,
+              as: "discounts",
+              required: false,
+              separate: true,
+              where: {
+                finish: {
+                  [Op.gt]: new Date(),
+                },
+              },
+              limit: 1,
+            },
+            {
+              model: db.Category,
+              as: "category",
+              required: true,
+              attributes: {
+                exclude: ["group_category_id", "createdAt", "updatedAt"],
+              },
+              include: [
+                {
+                  model: db.DiscountCategory,
+                  as: "discounts",
+                  required: false,
+                  separate: true,
+                  where: {
+                    end: {
+                      [Op.gt]: new Date(),
+                    },
+                  },
+                  limit: 1,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          model: db.Color,
+          as: "color",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
+        {
+          model: db.Size,
+          as: "size",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
         },
       ],
     },
@@ -335,4 +419,5 @@ module.exports = {
   defaultNotificationInclude,
   defaultOrderInclude,
   defaultProductDetailInclude,
+  defaultCartItemInclude,
 };

@@ -3,7 +3,9 @@ const db = require("../models");
 const getAll = async (query) => {
   return new Promise(async (resolve, reject) => {
     try {
-      let { code, percent } = query;
+      let { code, percent, limit, p } = query;
+      limit = !limit ? 10 : parseInt(limit);
+      p = !p ? 0 : parseInt(p) - 1;
       let coupons;
       let where = {};
       if (code) {
@@ -21,10 +23,19 @@ const getAll = async (query) => {
           percent,
         };
       }
-      coupons = await db.Coupon.findAll({ where });
-      console.log();
-      resolve({ status: 200, data: coupons });
+      const count = await db.Coupon.count({ where });
+      coupons = await db.Coupon.findAll({ where, limit, offset: p });
+      resolve({
+        status: 200,
+        data: {
+          items: coupons,
+          total_result: count,
+          total_page: Math.ceil(count / limit),
+          limit,
+        },
+      });
     } catch (error) {
+      console.log(error);
       resolve({
         status: 500,
         data: { error, message: "error get all coupons" },
@@ -49,6 +60,7 @@ const create = async (body) => {
   return new Promise(async (resolve, reject) => {
     try {
       const createdCoupon = await db.Coupon.create(body);
+      console.log(body);
       resolve({ status: 200, data: createdCoupon });
     } catch (error) {
       resolve({
@@ -63,8 +75,7 @@ const update = async (body) => {
     try {
       const { id, ...others } = body;
       await db.Coupon.update({ ...others }, { where: { id } });
-      const existingCoupon = await getById(id);
-      resolve({ status: 200, data: existingCoupon.data });
+      resolve({ status: 200, data: "updated" });
     } catch (error) {
       resolve({ status: 500, data: { error, message: "error update coupon" } });
     }

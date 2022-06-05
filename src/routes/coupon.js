@@ -1,25 +1,15 @@
 const router = require("express").Router();
-const couponService = require("../services/couponService");
 
-router.get("/", async (req, res) => {
-  const { status, data } = await couponService.getAll(req.query);
-  res.status(status).json(data);
-});
-router.get("/:coupon_id", async (req, res) => {
-  const { status, data } = await couponService.getById(req.params.coupon_id);
-  res.status(status).json(data);
-});
-router.post("/", async (req, res) => {
-  const { status, data } = await couponService.create(req.body);
-  res.status(status).json(data);
-});
-router.put("/", async (req, res) => {
-  const { status, data } = await couponService.update(req.body);
-  res.status(status).json(data);
-});
-router.delete("/:coupon_id", async (req, res) => {
-  const { status, data } = await couponService.destroy(req.params.coupon_id);
-  res.status(status).json(data);
-});
+const couponController = require("../controllers/couponController");
+const { verifyAdmin } = require("../middlewares/authMiddleware");
+
+router.get("/", couponController.getAll);
+router.get("/:coupon_id", couponController.getById);
+
+router.post("/", verifyAdmin, couponController.create);
+
+router.put("/", verifyAdmin, couponController.update);
+
+router.delete("/:coupon_id", verifyAdmin, couponController.destroy);
 
 module.exports = router;

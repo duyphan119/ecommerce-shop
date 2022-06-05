@@ -9,7 +9,7 @@ const cookieParser = require("cookie-parser");
 const path = require("path");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
-const socketIO = require("./socket");
+const socketService = require("./services/socketService");
 const session = require("express-session");
 require("dotenv").config();
 
@@ -20,6 +20,7 @@ const io = new Server(httpServer, {
     origin: true,
   },
 });
+global._io = io;
 // app.use(
 //   session({
 //     secret: "keyboard cat",
@@ -30,7 +31,7 @@ const io = new Server(httpServer, {
 // );
 const port = process.env.PORT || 5000;
 
-socketIO(io);
+io.on("connection", socketService.connection);
 app.use(cookieParser());
 
 //Config app

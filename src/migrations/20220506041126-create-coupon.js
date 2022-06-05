@@ -11,14 +11,11 @@ module.exports = {
       name: {
         type: Sequelize.STRING,
       },
-      value: {
-        type: Sequelize.INTEGER,
-      },
       percent: {
         type: Sequelize.FLOAT,
       },
-      description: {
-        type: Sequelize.TEXT,
+      start: {
+        type: Sequelize.DATE,
       },
       finish: {
         type: Sequelize.DATE,

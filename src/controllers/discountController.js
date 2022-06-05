@@ -12,17 +12,22 @@ const discountController = {
     res.status(status).json(data);
   },
   create: async (req, res) => {
-    const { status, data } = await discountService.create(req.body);
+    const { status, data } = await discountService.create(req.query, req.body);
     res.status(status).json(data);
   },
   update: async (req, res) => {
-    const { status, data } = await discountService.update(req.body);
+    const { status, data } = await discountService.update(req.query, req.body);
     res.status(status).json(data);
   },
   destroy: async (req, res) => {
     const { status, data } = await discountService.destroy(
       req.params.discount_id
     );
+    res.status(status).json(data);
+  },
+  destroyMany: async (req, res) => {
+    console.log("req.body", req.body);
+    const { status, data } = await discountService.destroyMany(req.body);
     res.status(status).json(data);
   },
 };

@@ -8,6 +8,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "size_id",
         as: "details",
       });
+      Size.hasMany(models.SizeGuide, {
+        foreignKey: "size_id",
+        as: "guides",
+      });
     }
   }
   Size.init(

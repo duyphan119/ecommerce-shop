@@ -1,18 +1,30 @@
 "use strict";
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Sizes", {
+    await queryInterface.createTable("SizeGuides", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      value: {
-        type: Sequelize.STRING,
+      category_id: {
+        type: Sequelize.INTEGER,
       },
-      code: {
-        type: Sequelize.STRING,
+      size_id: {
+        type: Sequelize.INTEGER,
+      },
+      min_height: {
+        type: Sequelize.INTEGER,
+      },
+      max_height: {
+        type: Sequelize.INTEGER,
+      },
+      min_weight: {
+        type: Sequelize.INTEGER,
+      },
+      max_weight: {
+        type: Sequelize.INTEGER,
       },
       createdAt: {
         allowNull: false,
@@ -25,6 +37,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Sizes");
+    await queryInterface.dropTable("SizeGuides");
   },
 };

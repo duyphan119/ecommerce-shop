@@ -26,12 +26,14 @@ const productUser = require("./productUser");
 const banner = require("./banner");
 const notification = require("./notification");
 const discountCategory = require("./discountCategory");
+const sizeGuide = require("./sizeGuide");
 const configRoute = (app) => {
   app.use("/api/auth", auth);
   app.use("/api/user", user);
   app.use("/api/role", role);
   app.use("/api/color", color);
   app.use("/api/size", size);
+  app.use("/api/size-guide", sizeGuide);
   app.use("/api/discount", discount);
   app.use("/api/material", material);
   app.use("/api/gender", gender);

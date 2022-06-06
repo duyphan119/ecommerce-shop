@@ -1,29 +1,14 @@
 const router = require("express").Router();
-const orderItemService = require("../services/orderItemService");
+const orderItemController = require("../controllers/orderItemController");
+const { verifyAdmin } = require("../middlewares/authMiddleware");
 
-router.get("/", async (req, res) => {
-  const { status, data } = await orderItemService.getAll();
-  res.status(status).json(data);
-});
-router.get("/:order_item_id", async (req, res) => {
-  const { status, data } = await orderItemService.getById(
-    req.params.order_item_id
-  );
-  res.status(status).json(data);
-});
-router.post("/", async (req, res) => {
-  const { status, data } = await orderItemService.create(req.body);
-  res.status(status).json(data);
-});
-router.put("/", async (req, res) => {
-  const { status, data } = await orderItemService.update(req.body);
-  res.status(status).json(data);
-});
-router.delete("/:order_item_id", async (req, res) => {
-  const { status, data } = await orderItemService.destroy(
-    req.params.order_item_id
-  );
-  res.status(status).json(data);
-});
+router.get("/", orderItemController.getAll);
+router.get("/:order_item_id", orderItemController.getById);
+
+router.post("/", orderItemController.create);
+
+router.put("/", orderItemController.update);
+
+router.delete("/:order_item_id", verifyAdmin, orderItemController.destroy);
 
 module.exports = router;

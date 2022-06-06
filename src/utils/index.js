@@ -29,7 +29,42 @@ const toSlug = (str) => {
   return str;
 };
 
-const defaultProductInclude = (user, allDiscounts = false) => {
+const defaultProductInclude = (
+  user,
+  allDiscounts = false,
+  hasSizeGuide = false
+) => {
+  const categoryInclude = [
+    {
+      model: db.GroupCategory,
+      as: "group_category",
+      required: true,
+      attributes: {
+        exclude: ["gender_id", "createdAt", "updatedAt"],
+      },
+      include: [
+        {
+          model: db.Gender,
+          as: "gender",
+          required: true,
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
+      ],
+    },
+    {
+      model: db.DiscountCategory,
+      as: "discounts",
+      required: false,
+      where: {
+        end: {
+          [Op.gt]: new Date().toISOString(),
+        },
+      },
+      limit: 1,
+    },
+  ];
   return [
     {
       model: db.ProductDetail,
@@ -68,37 +103,21 @@ const defaultProductInclude = (user, allDiscounts = false) => {
       attributes: {
         exclude: ["group_category_id", "createdAt", "updatedAt"],
       },
-      include: [
-        {
-          model: db.GroupCategory,
-          as: "group_category",
-          required: true,
-          attributes: {
-            exclude: ["gender_id", "createdAt", "updatedAt"],
-          },
-          include: [
+      include: hasSizeGuide
+        ? [
+            ...categoryInclude,
             {
-              model: db.Gender,
-              as: "gender",
-              required: true,
-              attributes: {
-                exclude: ["createdAt", "updatedAt"],
-              },
+              model: db.SizeGuide,
+              as: "guides",
+              include: [
+                {
+                  model: db.Size,
+                  as: "size",
+                },
+              ],
             },
-          ],
-        },
-        {
-          model: db.DiscountCategory,
-          as: "discounts",
-          required: false,
-          where: {
-            end: {
-              [Op.gt]: new Date(),
-            },
-          },
-          limit: 1,
-        },
-      ],
+          ]
+        : categoryInclude,
     },
     {
       model: db.Image,
@@ -114,7 +133,7 @@ const defaultProductInclude = (user, allDiscounts = false) => {
         ? {}
         : {
             finish: {
-              [Op.gte]: new Date().toDateString(),
+              [Op.gte]: new Date().toISOString(),
             },
           },
     },
@@ -177,7 +196,7 @@ const defaultCartItemInclude = () => {
               separate: true,
               where: {
                 finish: {
-                  [Op.gt]: new Date(),
+                  [Op.gt]: new Date().toISOString(),
                 },
               },
               limit: 1,
@@ -197,7 +216,7 @@ const defaultCartItemInclude = () => {
                   separate: true,
                   where: {
                     end: {
-                      [Op.gt]: new Date(),
+                      [Op.gt]: new Date().toISOString(),
                     },
                   },
                   limit: 1,
@@ -399,7 +418,7 @@ const defaultProductDetailInclude = () => {
               required: false,
               where: {
                 end: {
-                  [Op.gt]: new Date(),
+                  [Op.gt]: new Date().toISOString(),
                 },
               },
               limit: 1,
@@ -408,6 +427,12 @@ const defaultProductDetailInclude = () => {
         },
       ],
     },
+  ];
+};
+const defaultSizeGuideInclude = () => {
+  return [
+    { model: db.Category, as: "category" },
+    { model: db.Size, as: "size" },
   ];
 };
 
@@ -420,4 +445,5 @@ module.exports = {
   defaultOrderInclude,
   defaultProductDetailInclude,
   defaultCartItemInclude,
+  defaultSizeGuideInclude,
 };

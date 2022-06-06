@@ -1,29 +1,15 @@
 const router = require("express").Router();
-const imageService = require("../services/imageService");
+const imageController = require("../controllers/imageController");
+const { verifyAdmin } = require("../middlewares/authMiddleware");
 
-router.get("/", async (req, res) => {
-  const { status, data } = await imageService.getAll();
-  res.status(status).json(data);
-});
-router.get("/:image_id", async (req, res) => {
-  const { status, data } = await imageService.getById(req.params.image_id);
-  res.status(status).json(data);
-});
-router.post("/", async (req, res) => {
-  const { status, data } = await imageService.create(req.query, req.body);
-  res.status(status).json(data);
-});
-router.put("/", async (req, res) => {
-  const { status, data } = await imageService.update(req.body);
-  res.status(status).json(data);
-});
-router.delete("/", async (req, res) => {
-  const { status, data } = await imageService.destroyMany(req.body);
-  res.status(status).json(data);
-});
-router.delete("/:image_id", async (req, res) => {
-  const { status, data } = await imageService.destroy(req.params.image_id);
-  res.status(status).json(data);
-});
+router.get("/", imageController.getAll);
+router.get("/:image_id", imageController.getById);
+
+router.post("/", verifyAdmin, imageController.create);
+
+router.put("/", verifyAdmin, imageController.update);
+
+router.delete("/", verifyAdmin, imageController.destroyMany);
+router.delete("/:image_id", verifyAdmin, imageController.destroy);
 
 module.exports = router;

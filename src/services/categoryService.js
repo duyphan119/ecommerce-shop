@@ -82,8 +82,7 @@ const create = async (body) => {
         ...body,
         slug,
       });
-      const existingCategory = await getById(createdCategory.id);
-      resolve({ status: 200, data: existingCategory.data });
+      resolve({ status: 200, data: createdCategory });
     } catch (error) {
       resolve({
         status: 500,
@@ -99,8 +98,7 @@ const update = async (body) => {
       const { name } = others;
       const slug = toSlug(name);
       await db.Category.update({ ...others, slug }, { where: { id } });
-      const existingCategory = await getById(id);
-      resolve({ status: 200, data: existingCategory.data });
+      resolve({ status: 200, data: "Updated" });
     } catch (error) {
       resolve({
         status: 500,

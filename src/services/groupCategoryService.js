@@ -74,8 +74,7 @@ const update = async (body) => {
       const { name } = others;
       const slug = toSlug(name);
       await db.GroupCategory.update({ ...others, slug }, { where: { id } });
-      const existingGroupCategory = await getById(id);
-      resolve({ status: 200, data: existingGroupCategory.data });
+      resolve({ status: 200, data: "Updated" });
     } catch (error) {
       resolve({
         status: 500,

@@ -1,25 +1,14 @@
 const router = require("express").Router();
-const userService = require("../services/userService");
+const userController = require("../controllers/userController");
+const { verifyAdmin } = require("../middlewares/authMiddleware");
 
-router.get("/", async (req, res) => {
-  const { status, data } = await userService.getAll(req.query);
-  res.status(status).json(data);
-});
-router.get("/:user_id", async (req, res) => {
-  const { status, data } = await userService.getById(req.params.user_id);
-  res.status(status).json(data);
-});
-router.post("/", async (req, res) => {
-  const { status, data } = await userService.create(req.body);
-  res.status(status).json(data);
-});
-router.put("/", async (req, res) => {
-  const { status, data } = await userService.update(req.body);
-  res.status(status).json(data);
-});
-router.delete("/:user_id", async (req, res) => {
-  const { status, data } = await userService.destroy(req.params.user_id);
-  res.status(status).json(data);
-});
+router.get("/", userController.getAll);
+router.get("/:user_id", userController.getById);
+
+router.post("/", verifyAdmin, userController.create);
+
+router.put("/", userController.update);
+
+router.delete("/:user_id", verifyAdmin, userController.destroy);
 
 module.exports = router;

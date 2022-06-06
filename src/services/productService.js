@@ -494,6 +494,7 @@ const getByGenderSlug = async (user, query, slug) => {
           group: ["product.id"],
         });
         const listId = filteredProductId.map((item) => item.product.id);
+        console.log({ sortBy, sortType });
         products = await db.Product.findAll({
           order: [[sortBy ? sortBy : "id", sortType ? sortType : "desc"]],
           where: {
@@ -680,6 +681,28 @@ const getByCategorySlug = async (user, query, slug) => {
           ],
         };
       }
+      if (material.length > 0) {
+        const filteredMaterial = (
+          await db.ProductMaterial.findAll({
+            where: {
+              "$material.value$": {
+                [Op.in]: material,
+              },
+            },
+            include: [
+              {
+                model: db.Material,
+                as: "material",
+              },
+            ],
+            nest: true,
+            attributes: ["product_id"],
+          })
+        ).map((item) => item.product_id);
+        filterWhere["$product.id$"] = {
+          [Op.in]: filteredMaterial,
+        };
+      }
       const filteredProductId = await db.ProductDetail.findAll({
         nest: true,
         include: defaultProductDetailInclude(),
@@ -687,6 +710,7 @@ const getByCategorySlug = async (user, query, slug) => {
         group: ["product.id"],
       });
       const listId = filteredProductId.map((item) => item.product.id);
+
       let existingProducts = await db.Product.findAll({
         order: [[sortBy ? sortBy : "id", sortType ? sortType : "desc"]],
         nest: true,
@@ -745,7 +769,7 @@ const getBySlug = async (user, slug) => {
         attributes: {
           exclude: ["category_id"],
         },
-        include: defaultProductInclude(user),
+        include: defaultProductInclude(user, false, true),
         where: { slug },
       });
       const rate = await db.Comment.findAll({

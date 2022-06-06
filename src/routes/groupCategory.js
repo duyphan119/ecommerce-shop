@@ -1,29 +1,18 @@
 const router = require("express").Router();
-const groupCategoryService = require("../services/groupCategoryService");
+const groupCategoryController = require("../controllers/groupCategoryController");
+const { verifyAdmin } = require("../middlewares/authMiddleware");
 
-router.get("/", async (req, res) => {
-  const { status, data } = await groupCategoryService.getAll();
-  res.status(status).json(data);
-});
-router.get("/:group_category_id", async (req, res) => {
-  const { status, data } = await groupCategoryService.getById(
-    req.params.group_category_id
-  );
-  res.status(status).json(data);
-});
-router.post("/", async (req, res) => {
-  const { status, data } = await groupCategoryService.create(req.body);
-  res.status(status).json(data);
-});
-router.put("/", async (req, res) => {
-  const { status, data } = await groupCategoryService.update(req.body);
-  res.status(status).json(data);
-});
-router.delete("/:group_category_id", async (req, res) => {
-  const { status, data } = await groupCategoryService.destroy(
-    req.params.group_category_id
-  );
-  res.status(status).json(data);
-});
+router.get("/", groupCategoryController.getAll);
+router.get("/:group_category_id", groupCategoryController.getById);
+
+router.post("/", verifyAdmin, groupCategoryController.create);
+
+router.put("/", verifyAdmin, groupCategoryController.update);
+
+router.delete(
+  "/:group_category_id",
+  verifyAdmin,
+  groupCategoryController.destroy
+);
 
 module.exports = router;

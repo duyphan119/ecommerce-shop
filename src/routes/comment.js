@@ -1,39 +1,19 @@
 const router = require("express").Router();
-const commentService = require("../services/commentService");
 
-router.get("/", async (req, res) => {
-  const { status, data } = await commentService.getAll(req.query);
-  res.status(status).json(data);
-});
-router.get("/product/:product_id", async (req, res) => {
-  const { status, data } = await commentService.getByProduct(
-    req.query,
-    req.params.product_id
-  );
-  res.status(status).json(data);
-});
-router.get("/user/:user_id/product/:product_id", async (req, res) => {
-  const { status, data } = await commentService.getByUserProduct(
-    req.params.user_id,
-    req.params.product_id
-  );
-  res.status(status).json(data);
-});
-router.get("/:comment_id", async (req, res) => {
-  const { status, data } = await commentService.getById(req.params.comment_id);
-  res.status(status).json(data);
-});
-router.post("/", async (req, res) => {
-  const { status, data } = await commentService.create(req.body);
-  res.status(status).json(data);
-});
-router.put("/", async (req, res) => {
-  const { status, data } = await commentService.update(req.body);
-  res.status(status).json(data);
-});
-router.delete("/:comment_id", async (req, res) => {
-  const { status, data } = await commentService.destroy(req.params.comment_id);
-  res.status(status).json(data);
-});
+const commentController = require("../controllers/commentController");
+
+router.get("/", commentController.getAll);
+router.get("/product/:product_id", commentController.getByProduct);
+router.get(
+  "/user/:user_id/product/:product_id",
+  commentController.getByUserProduct
+);
+router.get("/:comment_id", commentController.getById);
+
+router.post("/", commentController.create);
+
+router.put("/", commentController.update);
+
+router.delete("/:comment_id", commentController.destroy);
 
 module.exports = router;

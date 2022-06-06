@@ -1,40 +1,19 @@
 const router = require("express").Router();
-const productMaterialService = require("../services/productMaterialService");
+const productMaterialController = require("../controllers/productMaterialController");
+const { verifyAdmin } = require("../middlewares/authMiddleware");
 
-router.get("/", async (req, res) => {
-  const { status, data } = await productMaterialService.getAll();
-  res.status(status).json(data);
-});
-router.get("/:product_material_id", async (req, res) => {
-  const { status, data } = await productMaterialService.getById(
-    req.params.product_material_id
-  );
-  res.status(status).json(data);
-});
-router.post("/", async (req, res) => {
-  const { status, data } = await productMaterialService.create(
-    req.query,
-    req.body
-  );
-  res.status(status).json(data);
-});
-router.put("/", async (req, res) => {
-  const { status, data } = await productMaterialService.update(
-    req.query,
-    req.body
-  );
-  res.status(status).json(data);
-});
-router.delete("/", async (req, res) => {
-  const { status, data } = await productMaterialService.destroyMany(req.body);
-  res.status(status).json(data);
-});
-router.delete("/:product_material_id", async (req, res) => {
-  const { status, data } = await productMaterialService.destroy(
-    req.query,
-    req.params.product_material_id
-  );
-  res.status(status).json(data);
-});
+router.get("/", productMaterialController.getAll);
+router.get("/:product_material_id", productMaterialController.getById);
+
+router.post("/", verifyAdmin, productMaterialController.create);
+
+router.put("/", verifyAdmin, productMaterialController.update);
+
+router.delete("/", verifyAdmin, productMaterialController.destroy);
+router.delete(
+  "/:product_material_id",
+  verifyAdmin,
+  productMaterialController.destroyMany
+);
 
 module.exports = router;
